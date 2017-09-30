@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <RelativeLayout
+            android:id="@+id/backLayout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <ImageView
+                android:id="@+id/img_background"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scaleType="centerCrop"
+                android:src="@drawable/img_background" />
+        </RelativeLayout>
+
+
+        <ImageView
+            android:id="@+id/img_logo"
+            android:layout_width="200dp"
+            android:layout_height="70dp"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="100dp"
+            android:src="@drawable/img_logo" />
+
+        <EditText
+            android:id="@+id/nameEditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_above="@+id/idEditText"
+            android:layout_marginLeft="50dp"
+            android:layout_marginRight="50dp"
+            android:layout_marginTop="70dp"
+            android:hint="NAME"
+            android:textColor="#FFFFFF"
+            android:textColorHint="#FFFFFF"
+            android:theme="@style/EditTextTheme" />
+
+        <EditText
+            android:id="@+id/idEditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_above="@+id/pwEditText"
+            android:layout_marginLeft="50dp"
+            android:layout_marginRight="50dp"
+            android:hint="ID"
+            android:textColor="#FFFFFF"
+            android:textColorHint="#FFFFFF"
+            android:theme="@style/EditTextTheme" />
+
+        <EditText
+            android:id="@+id/pwEditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="50dp"
+            android:layout_marginRight="50dp"
+            android:layout_centerInParent="true"
+            android:hint="PW"
+            android:inputType="textPassword"
+            android:textColor="#FFFFFF"
+            android:textColorHint="#FFFFFF"
+            android:theme="@style/EditTextTheme" />
+
+        <EditText
+            android:id="@+id/pwCheckEditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/pwEditText"
+            android:layout_marginLeft="50dp"
+            android:layout_marginRight="50dp"
+            android:hint="PWCHECK"
+            android:inputType="textPassword"
+            android:textColor="#FFFFFF"
+            android:textColorHint="#FFFFFF"
+            android:theme="@style/EditTextTheme" />
+
+        <EditText
+            android:id="@+id/phoneEditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/pwCheckEditText"
+            android:layout_marginLeft="50dp"
+            android:layout_marginRight="50dp"
+            android:hint="PHONE"
+            android:inputType="phone"
+            android:textColor="#FFFFFF"
+            android:textColorHint="#FFFFFF"
+            android:theme="@style/EditTextTheme" />
+
+        <Button
+            android:id="@+id/signUpBtn"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/phoneEditText"
+            android:layout_marginLeft="70dp"
+            android:layout_marginRight="70dp"
+            android:layout_marginTop="50dp"
+            android:background="@drawable/button_radius"
+            android:text="로그인"
+            android:textColor="#FFFFFF" />
+
+    </RelativeLayout>
+
+</LinearLayout>

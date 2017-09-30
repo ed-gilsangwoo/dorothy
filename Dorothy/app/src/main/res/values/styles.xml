@@ -8,4 +8,7 @@
         <item name="colorAccent">@color/colorAccent</item>
     </style>
 
+    <style name="EditTextTheme">
+        <item name="colorControlNormal">#FFFFFF</item>
+    </style>
 </resources>

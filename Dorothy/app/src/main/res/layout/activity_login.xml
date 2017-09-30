@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <RelativeLayout
+            android:id="@+id/backLayout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <ImageView
+                android:id="@+id/img_background"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scaleType="centerCrop"
+                android:src="@drawable/img_background" />
+        </RelativeLayout>
+
+
+        <ImageView
+            android:id="@+id/img_logo"
+            android:layout_width="200dp"
+            android:layout_height="70dp"
+            android:layout_centerHorizontal="true"
+            android:src="@drawable/img_logo"
+            android:layout_marginTop="120dp"/>
+
+        <EditText
+            android:id="@+id/idEditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:theme="@style/EditTextTheme"
+            android:hint="ID"
+            android:textColorHint="#FFFFFF"
+            android:layout_below="@id/img_logo"
+            android:layout_marginTop="70dp"
+            android:layout_marginRight="40dp"
+            android:layout_marginLeft="40dp"
+            android:textColor="#FFFFFF"/>
+
+        <EditText
+            android:id="@+id/pwEditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:theme="@style/EditTextTheme"
+            android:hint="PW"
+            android:textColorHint="#FFFFFF"
+            android:layout_below="@id/idEditText"
+            android:layout_marginRight="40dp"
+            android:layout_marginLeft="40dp"
+            android:inputType="textPassword"
+            android:textColor="#FFFFFF"/>
+
+        <Button
+            android:id="@+id/signUpBtn"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="70dp"
+            android:layout_marginRight="70dp"
+            android:layout_marginTop="80dp"
+            android:text="로그인"
+            android:layout_below="@id/pwEditText"
+            android:background="@drawable/button_radius"
+            android:textColor="#FFFFFF"/>
+
+    </RelativeLayout>
+</LinearLayout>
+
