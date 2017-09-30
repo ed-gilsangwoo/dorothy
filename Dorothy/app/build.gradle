@@ -27,5 +27,9 @@ dependencies {
     compile 'com.android.support:appcompat-v7:26.+'
     compile 'com.android.support.constraint:constraint-layout:1.0.2'
     compile 'jp.wasabeef:blurry:2.1.1'
+    // 카카오톡 sdk를 사용하기 위해 필요.
+    compile group: 'com.kakao.sdk', name: 'kakaotalk', version: project.KAKAO_SDK_VERSION
+    // 카카오내비 sdk를 사용하기 위해 필요.
+    compile group: 'com.kakao.sdk', name: 'kakaonavi', version: project.KAKAO_SDK_VERSION
     testCompile 'junit:junit:4.12'
 }
