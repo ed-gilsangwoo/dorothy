@@ -31,7 +31,6 @@ public class StartActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_start);
 
-
         backLayoout = (ViewGroup) findViewById(R.id.backLayout);
         backLayoout.post(new Runnable() {   // 백그라운드 이미지 블러 효과
             @Override

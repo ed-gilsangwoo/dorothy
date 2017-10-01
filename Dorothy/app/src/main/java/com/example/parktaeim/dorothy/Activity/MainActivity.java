@@ -7,6 +7,7 @@ import android.os.Build;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -81,14 +82,14 @@ public class MainActivity extends AppCompatActivity {
         destEditText = (EditText) findViewById(R.id.destEditText);
         searchIcon = (ImageView) findViewById(R.id.searchIcon);
 
-        destination = destEditText.getText().toString();
-
+        //검색버튼 클릭시
         searchIcon.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                destination = destEditText.getText().toString();
                 Intent intent = new Intent(MainActivity.this,SearchDestActivity.class);
+                intent.putExtra("destination",destination); //edittext에 입력된 값 넘기기
                 startActivity(intent);
-                Toast.makeText(MainActivity.this,"click",Toast.LENGTH_SHORT).show();
             }
         });
 

@@ -28,7 +28,7 @@
             android:layout_height="70dp"
             android:layout_centerHorizontal="true"
             android:src="@drawable/img_logo"
-            android:layout_marginTop="120dp"/>
+            android:layout_marginTop="90dp"/>
 
         <EditText
             android:id="@+id/idEditText"
@@ -57,7 +57,7 @@
             android:textColor="#FFFFFF"/>
 
         <Button
-            android:id="@+id/signUpBtn"
+            android:id="@+id/loginBtn"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginLeft="70dp"

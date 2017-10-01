@@ -103,7 +103,7 @@
             android:layout_marginRight="70dp"
             android:layout_marginTop="50dp"
             android:background="@drawable/button_radius"
-            android:text="로그인"
+            android:text="회원가입"
             android:textColor="#FFFFFF" />
 
     </RelativeLayout>

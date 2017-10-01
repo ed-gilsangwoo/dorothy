@@ -1,10 +1,16 @@
 package com.example.parktaeim.dorothy.Activity;
 
+import android.app.Activity;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
+import android.widget.ImageView;
 
 import com.example.parktaeim.dorothy.R;
 
@@ -12,7 +18,8 @@ import com.example.parktaeim.dorothy.R;
  * Created by parktaeim on 2017. 9. 30..
  */
 
-public class SplashActivity extends AppCompatActivity{
+public class SplashActivity extends Activity{
+    private Drawable drawable;
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -26,9 +33,7 @@ public class SplashActivity extends AppCompatActivity{
                 startActivity(intent);
                 finish();
             }
-        }, 3000); //3초 스플래시
-
-
+        },3000);
     }
 }
 

@@ -1,11 +1,15 @@
 package com.example.parktaeim.dorothy.Activity;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.WindowManager;
+import android.view.inputmethod.EditorInfo;
+import android.widget.EditText;
 
 import com.example.parktaeim.dorothy.Adapter.SearchDestRecycleAdapter;
 import com.example.parktaeim.dorothy.Model.SearchDestItem;
@@ -22,6 +26,7 @@ public class SearchDestActivity extends AppCompatActivity {
     private RecyclerView recyclerView;
     private SearchDestRecycleAdapter adapter;
     private RecyclerView.LayoutManager layoutManager;
+    private EditText destEditText;
 
 
     @Override
@@ -29,7 +34,18 @@ public class SearchDestActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_searchdest);
 
+        setSearchView();
         setUpRecyclerView();
+    }
+
+    private void setSearchView() {
+        //검색값 받아오기
+        Intent intent = getIntent();
+        String destination = intent.getExtras().getString("destination");
+
+        destEditText = (EditText) findViewById(R.id.destEditText);
+        destEditText.setText(destination);
+
     }
 
     private void setUpRecyclerView() {
