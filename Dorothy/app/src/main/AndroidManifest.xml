@@ -35,6 +35,7 @@
         </activity>
         <activity android:name=".Activity.LoginActivity"/>
         <activity android:name=".Activity.SignUpActivity"/>
+        <activity android:name=".Activity.SearchDestActivity"/>
     </application>
 
 </manifest>

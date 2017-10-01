@@ -41,5 +41,6 @@ dependencies {
     compile group: 'com.kakao.sdk', name: 'kakaonavi', version: project.KAKAO_SDK_VERSION
     testCompile 'junit:junit:4.12'
     compile files('libs/libDaumMapAndroid.jar')
+    compile 'com.android.support:recyclerview-v7:26.0.+'
 
 }

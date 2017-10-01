@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="130dp"
+        android:paddingLeft="35dp"
+        android:paddingRight="35dp"
+        android:paddingTop="35dp">
+
+        <TextView
+            android:id="@+id/destinationTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="송강그린아파트"
+            android:textColor="#000000"
+            android:textStyle="bold"
+            android:textSize="16dp" />
+
+        <TextView
+            android:id="@+id/addressTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="대전광역시 유성구 송광동"
+            android:textColor="#000000"
+            android:layout_below="@+id/destinationTextView"
+            android:layout_marginTop="20dp"/>
+
+        <ImageView
+            android:id="@+id/clockIcon"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:src="@drawable/icon_clock"
+            android:layout_alignParentRight="true"
+            android:layout_marginTop="10dp"
+            android:layout_marginRight="9dp"/>
+
+
+        <TextView
+            android:id="@+id/distanceTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="0.0"
+            android:layout_below="@id/clockIcon"
+            android:layout_marginTop="1dp"
+            android:layout_toLeftOf="@+id/textView"
+            android:textSize="12dp"/>
+
+        <TextView
+            android:id="@+id/textView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text=" km"
+            android:layout_alignParentRight="true"
+            android:layout_below="@id/clockIcon"
+            android:layout_marginTop="1dp"
+            android:textSize="12dp"/>
+
+
+
+    </RelativeLayout>
+
+</LinearLayout>

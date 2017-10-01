@@ -1,13 +1,17 @@
 package com.example.parktaeim.dorothy.Activity;
 
 import android.Manifest;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.MenuItem;
+import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 
@@ -27,6 +31,10 @@ public class MainActivity extends AppCompatActivity {
     private double latitude;
     private double longitude;
     private MapView mapView;
+    private EditText destEditText;
+    private ImageView searchIcon;
+    private String destination;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -37,6 +45,7 @@ public class MainActivity extends AppCompatActivity {
         mapViewContainer.addView(mapView);
 
         setMapView();
+        setSearch();
     }
 
     private void setMapView (){
@@ -64,10 +73,26 @@ public class MainActivity extends AppCompatActivity {
         marker.setTag(0);
         marker.setMapPoint(MapPoint.mapPointWithGeoCoord(latitude,longitude));
         marker.setMarkerType(MapPOIItem.MarkerType.RedPin);
-        marker.setSelectedMarkerType(MapPOIItem.MarkerType.RedPin); 
+        marker.setSelectedMarkerType(MapPOIItem.MarkerType.RedPin);
         mapView.addPOIItem(marker);
     }
 
+    private void setSearch(){
+        destEditText = (EditText) findViewById(R.id.destEditText);
+        searchIcon = (ImageView) findViewById(R.id.searchIcon);
+
+        destination = destEditText.getText().toString();
+
+        searchIcon.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(MainActivity.this,SearchDestActivity.class);
+                startActivity(intent);
+                Toast.makeText(MainActivity.this,"click",Toast.LENGTH_SHORT).show();
+            }
+        });
+
+    }
 
 }
 
