@@ -42,5 +42,9 @@ dependencies {
     testCompile 'junit:junit:4.12'
     compile files('libs/libDaumMapAndroid.jar')
     compile 'com.android.support:recyclerview-v7:26.0.+'
+    compile 'com.squareup.retrofit2:retrofit:2.3.0'
+    compile 'com.squareup.retrofit2:converter-gson:2.0.1'
+    compile 'com.squareup.okhttp3:okhttp:3.8.0'
+
 
 }
