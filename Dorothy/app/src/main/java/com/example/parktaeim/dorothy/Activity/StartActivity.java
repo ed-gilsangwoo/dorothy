@@ -15,6 +15,8 @@ import android.widget.TextView;
 
 import com.example.parktaeim.dorothy.R;
 
+import net.daum.mf.map.api.MapView;
+
 import jp.wasabeef.blurry.Blurry;
 
 /**
@@ -64,7 +66,12 @@ public class StartActivity extends AppCompatActivity {
             }
         });
 
+
     }
+
+
+
+
 
 
 }

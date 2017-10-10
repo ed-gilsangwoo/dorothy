@@ -45,6 +45,7 @@ dependencies {
     compile 'com.squareup.retrofit2:retrofit:2.3.0'
     compile 'com.squareup.retrofit2:converter-gson:2.0.1'
     compile 'com.squareup.okhttp3:okhttp:3.8.0'
-
+    compile 'com.kofigyan.stateprogressbar:stateprogressbar:0.0.6'
+    compile 'com.anton46:stepsview:0.0.2'
 
 }
