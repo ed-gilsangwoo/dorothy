@@ -64,7 +64,7 @@ public class LoginActivity extends AppCompatActivity {
                 id = idEditText.getText().toString();
                 String pw = pwEditText.getText().toString();
                 System.out.println(id+", "+pw);
-                
+
                 OkHttpClient client = new OkHttpClient.Builder()
                         .connectTimeout(100, TimeUnit.SECONDS)
                         .readTimeout(100, TimeUnit.SECONDS).build();

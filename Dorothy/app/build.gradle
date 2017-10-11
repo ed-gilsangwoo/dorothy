@@ -35,17 +35,11 @@ dependencies {
     compile 'com.android.support:appcompat-v7:26.+'
     compile 'com.android.support.constraint:constraint-layout:1.0.2'
     compile 'jp.wasabeef:blurry:2.1.1'
-    // 카카오톡 sdk를 사용하기 위해 필요.
-    compile group: 'com.kakao.sdk', name: 'kakaotalk', version: project.KAKAO_SDK_VERSION
-    // 카카오내비 sdk를 사용하기 위해 필요.
-    compile group: 'com.kakao.sdk', name: 'kakaonavi', version: project.KAKAO_SDK_VERSION
-    testCompile 'junit:junit:4.12'
-    compile files('libs/libDaumMapAndroid.jar')
     compile 'com.android.support:recyclerview-v7:26.0.+'
     compile 'com.squareup.retrofit2:retrofit:2.3.0'
     compile 'com.squareup.retrofit2:converter-gson:2.0.1'
     compile 'com.squareup.okhttp3:okhttp:3.8.0'
     compile 'com.kofigyan.stateprogressbar:stateprogressbar:0.0.6'
     compile 'com.anton46:stepsview:0.0.2'
-
+    compile files('libs/com.skp.Tmap_1.0.48.jar')
 }
