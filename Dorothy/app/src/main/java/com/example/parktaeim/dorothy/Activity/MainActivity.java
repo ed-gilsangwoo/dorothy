@@ -34,6 +34,11 @@ public class MainActivity extends AppCompatActivity implements TMapGpsManager.on
     private static final int MY_PERMISSIONS_REQUEST_READ_CONTACTS = 1;
     private boolean mTrackingMode = true;
 
+    private static final int INITIAL_REQUEST = 1337;
+    private static final int CAMERA_REQUEST = INITIAL_REQUEST + 1;
+    private static final int CONTACTS_REQUEST = INITIAL_REQUEST + 2;
+    private static final int LOCATION_REQUEST = INITIAL_REQUEST + 3;
+
     private double latitude;
     private double longitude;
     private EditText destEditText;
@@ -41,7 +46,7 @@ public class MainActivity extends AppCompatActivity implements TMapGpsManager.on
     private String destination;
     private TMapView tMapView;
     private TMapGpsManager tMapGps;
-    
+
     final static String APIKEY = "f6d6e268-7e09-331c-9753-e1a48087d569";
 
     private static final String[] INITIAL_PERMS = {
@@ -51,18 +56,24 @@ public class MainActivity extends AppCompatActivity implements TMapGpsManager.on
     private static final String[] LOCATION_PERMS = {
             Manifest.permission.ACCESS_FINE_LOCATION
     };
+    private static final int REQUEST_CODE_LOCATION = 2;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        setMap();
-        setSearch();
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, LOCATION_PERMS, REQUEST_CODE_LOCATION);
+        } else {
+            setMap();
+            setSearch();
+        }
     }
 
 
     private void setMap() {
+        Log.d("!@#!@##!@", "setMap: ");
         RelativeLayout relativeLayout = (RelativeLayout) findViewById(R.id.map_view);
         tMapView = new TMapView(this);
         relativeLayout.addView(tMapView);
@@ -109,6 +120,25 @@ public class MainActivity extends AppCompatActivity implements TMapGpsManager.on
             }
         });
 
+    }
+
+    private boolean canAccessLocation() {
+        return (hasPermission(Manifest.permission.ACCESS_FINE_LOCATION));
+    }
+
+    private boolean hasPermission(String perm) {
+        return (PackageManager.PERMISSION_GRANTED == checkSelfPermission(perm));
+    }
+
+    private boolean canAccessContacts() {
+        return (hasPermission(Manifest.permission.READ_CONTACTS));
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        setMap();
+        setSearch();
     }
 }
 
