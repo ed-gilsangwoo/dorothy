@@ -50,6 +50,8 @@ public class SearchDestRecycleAdapter extends RecyclerView.Adapter<SearchDestRec
             public void onClick(View view) {
                 Toast.makeText(context,destItems.get(position).getDestination(),Toast.LENGTH_SHORT).show();
                 Intent intent = new Intent(context,NavigationActivity.class);
+                intent.putExtra("destination",destItems.get(position).getDestination());
+                intent.putExtra("address",destItems.get(position).getAddress());
                 intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_MULTIPLE_TASK);
                 context.startActivity(intent);
             }

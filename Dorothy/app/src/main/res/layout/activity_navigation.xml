@@ -8,7 +8,7 @@
         android:id="@+id/map_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/colorMellow"/>
+        android:background="@color/colorMellow" />
 
     <RelativeLayout
         android:id="@+id/startNaviLayout"
@@ -28,7 +28,7 @@
                 android:layout_alignParentLeft="true"
                 android:layout_centerVertical="true"
                 android:layout_marginLeft="70dp"
-                android:src="@drawable/icon_clock"/>
+                android:src="@drawable/icon_clock" />
 
             <TextView
                 android:id="@+id/distanceTextView"
@@ -43,20 +43,73 @@
                 android:id="@+id/totalDistanceTextView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="000m"
-                android:textColor="#FFFFFF"
-                android:textSize="15dp"
                 android:layout_alignBaseline="@+id/distanceTextView"
                 android:layout_alignParentRight="true"
-                android:layout_marginRight="30dp" />
+                android:layout_marginRight="30dp"
+                android:text="000m"
+                android:textColor="#FFFFFF"
+                android:textSize="15dp" />
 
         </RelativeLayout>
 
         <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="60dp"
+            android:layout_height="55dp"
             android:layout_alignParentBottom="true"
-            android:background="@color/colorPrimary"/>
+            android:background="@color/colorPrimary">
+
+            <RelativeLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_marginLeft="20dp">
+
+                <TextView
+                    android:id="@+id/destNameTextViewBottom"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="2dp"
+                    android:text="송강그린아파트"
+                    android:textColor="#FFFFFF"
+                    android:textSize="11dp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/addressTextViewBottom"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/destNameTextViewBottom"
+                    android:text="대전광역시 유성구 송강동"
+                    android:textColor="#FFFFFF"
+                    android:textSize="10dp" />
+
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_marginRight="20dp"
+                android:layout_centerVertical="true">
+
+                <TextView
+                    android:id="@+id/tv"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="남은 시간"
+                    android:textColor="#FFFFFF"
+                    android:textSize="8dp" />
+
+                <TextView
+                    android:id="@+id/timeTextViewBottom"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="00:00"
+                    android:textColor="#FFFFFF"
+                    android:layout_below="@+id/tv"
+                    android:textSize="17dp"/>
+            </RelativeLayout>
+        </RelativeLayout>
 
     </RelativeLayout>
 
@@ -84,9 +137,9 @@
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="5dp"
                     android:text="송강그린아파트"
-                    android:textStyle="bold"
                     android:textColor="#FFFFFF"
-                    android:textSize="16dp" />
+                    android:textSize="16dp"
+                    android:textStyle="bold" />
 
                 <TextView
                     android:id="@+id/addressTextView"
@@ -105,14 +158,14 @@
                 android:layout_height="match_parent"
                 android:layout_alignParentRight="true"
                 android:background="@color/colorDark">
+
                 <ImageView
                     android:layout_width="30dp"
                     android:layout_height="30dp"
                     android:layout_centerInParent="true"
-                    android:src="@drawable/icon_play"/>
+                    android:src="@drawable/icon_play" />
             </RelativeLayout>
         </RelativeLayout>
-
 
 
     </RelativeLayout>
