@@ -47,8 +47,6 @@ public class MainActivity extends AppCompatActivity implements TMapGpsManager.on
     private TMapView tMapView;
     private TMapGpsManager tMapGps;
 
-    final static String APIKEY = "f6d6e268-7e09-331c-9753-e1a48087d569";
-
     private static final String[] INITIAL_PERMS = {
             Manifest.permission.ACCESS_FINE_LOCATION,
             Manifest.permission.READ_CONTACTS
@@ -62,7 +60,8 @@ public class MainActivity extends AppCompatActivity implements TMapGpsManager.on
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
+        Log.d("!@#!#@#!", "onCreate: " + ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION));
+        Log.d("!@#!#@#!", "onCreate: " + ActivityCompat.checkSelfPermission(this, Manifest.permission.INTERNET));
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, LOCATION_PERMS, REQUEST_CODE_LOCATION);
         } else {
@@ -74,17 +73,17 @@ public class MainActivity extends AppCompatActivity implements TMapGpsManager.on
 
     private void setMap() {
         Log.d("!@#!@##!@", "setMap: ");
+
         RelativeLayout relativeLayout = (RelativeLayout) findViewById(R.id.map_view);
         tMapView = new TMapView(this);
         relativeLayout.addView(tMapView);
-        tMapView.setSKPMapApiKey(APIKEY);
+        tMapView.setSKPMapApiKey(getString(R.string.tmap_app_key));
 
         tMapView.setCompassMode(true);    // 현재 보는 방향
         tMapView.setIconVisibility(true);   // 아이콘 표시
         tMapView.setZoomLevel(15);   // 줌레벨
         tMapView.setMapType(TMapView.MAPTYPE_STANDARD);
         tMapView.setLanguage(TMapView.LANGUAGE_KOREAN);
-
 
         tMapGps = new TMapGpsManager(MainActivity.this);
         tMapGps.setMinTime(1000);
@@ -116,6 +115,8 @@ public class MainActivity extends AppCompatActivity implements TMapGpsManager.on
                 destination = destEditText.getText().toString();
                 Intent intent = new Intent(MainActivity.this, SearchDestActivity.class);
                 intent.putExtra("destination", destination); //edittext에 입력된 값 넘기기
+                intent.putExtra("lat", tMapGps.getLocation().getLatitude());
+                intent.putExtra("lon", tMapGps.getLocation().getLongitude());
                 startActivity(intent);
             }
         });

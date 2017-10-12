@@ -9,4 +9,8 @@ public class APIUrl {
 
     public static final String LOGIN_URL = "user/login";
     public static final String SIGN_UP_URL = "user/register";
+
+    public static final String TMAP_BASE_URL = "https://apis.skplanetx.com/";
+
+    public static final String SEARCH = "tmap/pois";
 }
