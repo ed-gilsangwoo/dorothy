@@ -5,4 +5,5 @@
     <color name="colorMellow">#4DC4FF</color>
     <color name="colorAccent">#FF4081</color>
     <color name="colorDark">#4482D6</color>
+    <color name="gray">#808080</color>
 </resources>
