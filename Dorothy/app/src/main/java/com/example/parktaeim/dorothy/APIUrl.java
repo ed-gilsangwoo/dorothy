@@ -13,4 +13,5 @@ public class APIUrl {
     public static final String TMAP_BASE_URL = "https://apis.skplanetx.com/";
 
     public static final String SEARCH = "tmap/pois";
+    public static final String NAVIGATION_URL = "tmap/routes";
 }

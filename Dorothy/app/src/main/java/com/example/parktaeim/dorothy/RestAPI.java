@@ -30,4 +30,9 @@ public interface RestAPI {
 
     @GET(APIUrl.SEARCH)
     Call<JsonObject> search(@Header("Accept") String acceptHeader, @Header("appKey") String appKeyHeader, @QueryMap HashMap<String, Object> fieldMap);
+
+    @FormUrlEncoded
+    @POST(APIUrl.NAVIGATION_URL)
+    Call<JsonObject> navigation(@Header("Accept") String acceptHeader, @Header("appKey") String appKeyHeader, @QueryMap HashMap<String, Object> fieldMap);
+
 }

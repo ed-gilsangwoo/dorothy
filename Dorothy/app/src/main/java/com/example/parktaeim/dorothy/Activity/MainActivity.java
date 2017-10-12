@@ -1,10 +1,14 @@
 package com.example.parktaeim.dorothy.Activity;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.os.Build;
+import android.os.SystemClock;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -29,7 +33,7 @@ import com.skp.Tmap.TMapView;
 import java.util.ArrayList;
 
 
-public class MainActivity extends AppCompatActivity implements TMapGpsManager.onLocationChangedCallback {
+public class MainActivity extends AppCompatActivity implements TMapGpsManager.onLocationChangedCallback{
 
     private static final int MY_PERMISSIONS_REQUEST_READ_CONTACTS = 1;
     private boolean mTrackingMode = true;
@@ -47,6 +51,10 @@ public class MainActivity extends AppCompatActivity implements TMapGpsManager.on
     private TMapView tMapView;
     private TMapGpsManager tMapGps;
 
+    LocationManager locationManager;
+    String gpsProvider = LocationManager.GPS_PROVIDER;
+    String networkProvider = LocationManager.NETWORK_PROVIDER;
+
     private static final String[] INITIAL_PERMS = {
             Manifest.permission.ACCESS_FINE_LOCATION,
             Manifest.permission.READ_CONTACTS
@@ -57,11 +65,37 @@ public class MainActivity extends AppCompatActivity implements TMapGpsManager.on
     private static final int REQUEST_CODE_LOCATION = 2;
 
     @Override
+    public void onLocationChange(Location location) {
+        Log.d("Start OnLocationChange",location.toString());
+        if (mTrackingMode) {
+
+            Log.d("Start OnLocationChange", location.toString());
+            double latitude = location.getLatitude();
+            double longitude = location.getLongitude();
+            double accuracy = location.getAccuracy();
+
+            System.out.println(latitude + longitude + accuracy);
+
+            tMapView.setLocationPoint(location.getLatitude(), location.getLongitude());
+            Log.d(String.valueOf(location.getLatitude()), String.valueOf(location.getLongitude()));
+            tMapView.setCenterPoint(location.getLatitude(), location.getLongitude());
+
+//            tMapView.setLocationPoint(location.getLatitude(), location.getLongitude());
+            Log.d(String.valueOf(location.getLatitude()),String.valueOf(location.getLongitude()));
+//            tMapView.setCenterPoint(location.getLatitude(),location.getLongitude());
+//            tMapView.setMapPosition(location.getLatitude(),location.getLongitude());
+        }
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         Log.d("!@#!#@#!", "onCreate: " + ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION));
         Log.d("!@#!#@#!", "onCreate: " + ActivityCompat.checkSelfPermission(this, Manifest.permission.INTERNET));
+
+        locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, LOCATION_PERMS, REQUEST_CODE_LOCATION);
         } else {
@@ -86,23 +120,87 @@ public class MainActivity extends AppCompatActivity implements TMapGpsManager.on
         tMapView.setLanguage(TMapView.LANGUAGE_KOREAN);
 
         tMapGps = new TMapGpsManager(MainActivity.this);
-        tMapGps.setMinTime(1000);
+        tMapGps.setMinTime(100);
         tMapGps.setMinDistance(5);
-//        tMapGps.setProvider(tMapGps.NETWORK_PROVIDER);  // 인터넷 이용 (실내일때 유용)
-        tMapGps.setProvider(tMapGps.GPS_PROVIDER);    // 현위치 gps 이용
+        tMapGps.setProvider(tMapGps.NETWORK_PROVIDER);  // 인터넷 이용 (실내일때 유용)
+//        tMapGps.setProvider(tMapGps.GPS_PROVIDER);    // 현위치 gps 이용
         tMapGps.OpenGps();
 
         tMapView.setTrackingMode(true);   //트래킹모드
         tMapView.setSightVisible(true);
 
+//        try{
+//            Log.d("setmap ====","location updates");
+//            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 100, 1, mListener);
+//            locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER,100,1,mListener);
+//
+//        }catch (SecurityException e){
+//            e.printStackTrace();
+//        }
+
     }
 
-    @Override
-    public void onLocationChange(Location location) {
-        if (mTrackingMode) {
-            tMapView.setLocationPoint(location.getLongitude(), location.getLatitude());
-        }
-    }
+//    @Override
+//    protected void onStart() {
+//        super.onStart();
+//        Log.d("onStart", "========");
+//
+//        Location location = locationManager.getLastKnownLocation(networkProvider);
+//
+//        if (location != null) {
+//            System.out.println("왜 안되지 거지같다ㅠㅠ");
+//
+//            mListener.onLocationChanged(location);
+//            System.out.println("왜 안되지 거지같다ㅠㅠ");
+//
+//
+//        }
+//        locationManager.requestSingleUpdate(networkProvider, mListener, null);
+//
+//        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+//            Log.d("onStart==== ", "checkPermission");
+//            return;
+//        }
+//
+//
+//    }
+
+
+//    private final LocationListener mListener = new LocationListener() {
+//        @Override
+//        public void onLocationChanged(Location location) {
+//            Log.d("Start OnLocationChange", location.toString());
+//
+//                Log.d("Start OnLocationChange", location.toString());
+//                double latitude = location.getLatitude();
+//                double longitude = location.getLongitude();
+//                double accuracy = location.getAccuracy();
+//
+//                System.out.println(latitude + longitude + accuracy);
+//
+//                tMapView.setLocationPoint(location.getLatitude(), location.getLongitude());
+//                Log.d(String.valueOf(location.getLatitude()), String.valueOf(location.getLongitude()));
+//                tMapView.setCenterPoint(location.getLatitude(), location.getLongitude());
+//
+//        }
+//
+//        @Override
+//        public void onStatusChanged(String s, int i, Bundle bundle) {
+//
+//        }
+//
+//        @Override
+//        public void onProviderEnabled(String s) {
+//
+//        }
+//
+//        @Override
+//        public void onProviderDisabled(String s) {
+//
+//        }
+//    };
+
+
 
     private void setSearch() {
         destEditText = (EditText) findViewById(R.id.destEditText);
@@ -141,6 +239,8 @@ public class MainActivity extends AppCompatActivity implements TMapGpsManager.on
         setMap();
         setSearch();
     }
+
+
 }
 
 
