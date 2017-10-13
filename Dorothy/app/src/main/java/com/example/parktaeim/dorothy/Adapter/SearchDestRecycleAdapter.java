@@ -11,6 +11,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.parktaeim.dorothy.Activity.NavigationActivity;
+import com.example.parktaeim.dorothy.Activity.SearchDestActivity;
 import com.example.parktaeim.dorothy.Model.SearchDestItem;
 import com.example.parktaeim.dorothy.R;
 
@@ -25,6 +26,9 @@ import retrofit2.http.POST;
 public class SearchDestRecycleAdapter extends RecyclerView.Adapter<SearchDestRecycleAdapter.ViewHolder> {
     Context context;
     private ArrayList<SearchDestItem> destItems;
+    final static SearchDestActivity searchDestActivity = new SearchDestActivity();
+    private static double lat = searchDestActivity.lat;
+    private static double lon = searchDestActivity.lon;
 
     public SearchDestRecycleAdapter(Context context, ArrayList<SearchDestItem> destItems) {
         this.context = context;
@@ -52,6 +56,8 @@ public class SearchDestRecycleAdapter extends RecyclerView.Adapter<SearchDestRec
                 Intent intent = new Intent(context,NavigationActivity.class);
                 intent.putExtra("destination",destItems.get(position).getDestination());
                 intent.putExtra("address",destItems.get(position).getAddress());
+                intent.putExtra("currentLatitude", lat);
+                intent.putExtra("currentLongitude",lon);
                 intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_MULTIPLE_TASK);
                 context.startActivity(intent);
             }

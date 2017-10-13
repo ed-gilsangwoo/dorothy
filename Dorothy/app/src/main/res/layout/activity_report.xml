@@ -116,7 +116,7 @@
             android:textStyle="bold"
             android:layout_margin="20dp"
             android:layout_alignParentBottom="true"
-            android:layout_centerHorizontal="true"/>
+            android:layout_centerHorizontal="true" />
 
 
     </RelativeLayout>

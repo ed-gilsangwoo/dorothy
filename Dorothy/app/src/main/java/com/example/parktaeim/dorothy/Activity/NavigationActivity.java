@@ -4,14 +4,28 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.example.parktaeim.dorothy.APIUrl;
 import com.example.parktaeim.dorothy.R;
+import com.example.parktaeim.dorothy.RestAPI;
+import com.google.gson.JsonObject;
 import com.skp.Tmap.TMapView;
 
 import org.w3c.dom.Text;
+
+import java.util.HashMap;
+import java.util.concurrent.TimeUnit;
+
+import okhttp3.OkHttpClient;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
 
 /**
  * Created by parktaeim on 2017. 10. 12..
@@ -36,7 +50,44 @@ public class NavigationActivity extends AppCompatActivity {
 
         setLayout();
         setMap();
+        setNavigation();
 
+    }
+
+    private void setNavigation() {
+        Intent intent = getIntent();
+        double lat = intent.getDoubleExtra("currentLatitude",-1);
+        double lon = intent.getDoubleExtra("currentLongitude",-1);
+        Log.d("setNavi location======"+String.valueOf(lat),String.valueOf(lon));
+
+        HashMap<String, Object> fieldMap = new HashMap<>();
+//        fieldMap.put("startX", );
+//        fieldMap.put("startY", );
+//        fieldMap.put("endX", );
+//        fieldMap.put("endY", );
+
+//        OkHttpClient client = new OkHttpClient.Builder()
+//                .connectTimeout(100, TimeUnit.SECONDS)
+//                .readTimeout(100, TimeUnit.SECONDS).build();
+//
+//        Retrofit builder = new Retrofit.Builder()
+//                .baseUrl(APIUrl.TMAP_BASE_URL).client(client)
+//                .addConverterFactory(GsonConverterFactory.create())
+//                .build();
+//        RestAPI restAPI = builder.create(RestAPI.class);
+//
+//        Call<JsonObject> call = restAPI.navigation("application/json",getString(R.string.tmap_app_key),fieldMap);
+//        call.enqueue(new Callback<JsonObject>() {
+//            @Override
+//            public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
+//
+//            }
+//
+//            @Override
+//            public void onFailure(Call<JsonObject> call, Throwable t) {
+//
+//            }
+//        });
     }
 
     private void setMap() {

@@ -47,14 +47,14 @@ public class SearchDestActivity extends AppCompatActivity {
     private SearchDestRecycleAdapter adapter;
     private RecyclerView.LayoutManager layoutManager;
     private EditText destEditText;
-    private ArrayList items;
+    private ArrayList<SearchDestItem> items;
     private OkHttpClient client;
     private Retrofit builder;
     private RestAPI restAPI;
 
     private String destination;
-    private Double lat;
-    private Double lon;
+    public Double lat = 0.0;
+    public Double lon = 0.0;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -71,9 +71,10 @@ public class SearchDestActivity extends AppCompatActivity {
                 .build();
 
         restAPI = builder.create(RestAPI.class);
-
         setSearchView();
+
         setUpRecyclerView();
+
     }
 
     private void setSearchView() {
@@ -81,8 +82,10 @@ public class SearchDestActivity extends AppCompatActivity {
         //검색값 받아오기
         Intent intent = getIntent();
         destination = intent.getExtras().getString("destination");
-        lat = intent.getExtras().getDouble("lat");
-        lon = intent.getExtras().getDouble("lon");
+        String address = intent.getExtras().getString("address");
+        lat = intent.getExtras().getDouble("currentLatitude");
+        lon = intent.getExtras().getDouble("currentLongitude");
+
         String encodedKeyword = null;
 
         try {
@@ -94,12 +97,14 @@ public class SearchDestActivity extends AppCompatActivity {
         Toast.makeText(getApplicationContext(), "URLENCODED SEARCHKEYWORD : " + encodedKeyword, Toast.LENGTH_SHORT).show();
 
         HashMap<String, Object> fieldMap = new HashMap<>();
-        fieldMap.put("count", 20);
+        fieldMap.put("count", 40);
         fieldMap.put("searchType", "all");
         fieldMap.put("searchKeyword", encodedKeyword);
-        fieldMap.put("radius", 0);
-        fieldMap.put("centerLon", lon == 0 ? 14108238.15118341 : lon);
-        fieldMap.put("centerLat", lat == 0 ? 4519038.20924965 : lat);
+        fieldMap.put("radius", 33);
+        fieldMap.put("centerLon", lon == 0 ? 127.365678 : lon);
+        fieldMap.put("centerLat", lat == 0 ? 36.336541 : lat);
+        fieldMap.put("reqCoordType","WGS84GEO");
+        Log.d("search lat"+lat.toString(),"lon"+lon.toString());
         fieldMap.put("searchtypCd", "R");
 
         Call<JsonObject> call = restAPI.search("application/json", getString(R.string.tmap_app_key), fieldMap);
@@ -108,11 +113,14 @@ public class SearchDestActivity extends AppCompatActivity {
             @Override
             public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
                 Log.d("#!@#!@#", "setSearchView: " + call.request().url() + "\n" + call.request().header("Accept"));
+                Log.d("response.code==",String.valueOf(response.code()));
 
                 if (response.code() == 200) {
+                    Log.d("response 200==========","success");
                     JsonObject searchPoiInfo = response.body().getAsJsonObject("searchPoiInfo");
                     JsonObject pois = searchPoiInfo.getAsJsonObject("pois");
                     JsonArray poi = pois.getAsJsonArray("poi");
+                    Log.d("poi",poi.toString());
                     Iterator<JsonElement> iterator = poi.iterator();
                     while (iterator.hasNext()) {
                         JsonObject location = iterator.next().getAsJsonObject();
@@ -126,17 +134,21 @@ public class SearchDestActivity extends AppCompatActivity {
                                 + " " + location.get("lowerAddrName").getAsString() + " " + location.get("roadName").getAsString();
 
                         items.add(new SearchDestItem(name, address, radius, frontLat, frontLon, noorLat, noorLon));
+                        Log.d("item add=====",name.toString());
                         adapter.notifyDataSetChanged();
                     }
                 }
                 if (response.code() == 204) {
                     Toast.makeText(getApplicationContext(), "No contents", Toast.LENGTH_SHORT).show();
+                }else if(response.code() == 400){
+                    Toast.makeText(getApplicationContext(), "400 ERROR",Toast.LENGTH_SHORT).show();
                 }
             }
 
             @Override
             public void onFailure(Call<JsonObject> call, Throwable t) {
                 t.printStackTrace();
+                Log.d("Error!!!!!!!!!!!",t.toString());
             }
         });
 
@@ -146,7 +158,6 @@ public class SearchDestActivity extends AppCompatActivity {
     }
 
     private void setUpRecyclerView() {
-
         recyclerView = (RecyclerView) findViewById(R.id.recyclerView);
         layoutManager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(layoutManager);
@@ -155,5 +166,7 @@ public class SearchDestActivity extends AppCompatActivity {
 
         adapter = new SearchDestRecycleAdapter(getApplicationContext(), items);
         recyclerView.setAdapter(adapter);
+
+
     }
 }
