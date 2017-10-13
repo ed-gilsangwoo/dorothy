@@ -104,6 +104,7 @@ public class SearchDestActivity extends AppCompatActivity {
         fieldMap.put("centerLon", lon == 0 ? 127.365678 : lon);
         fieldMap.put("centerLat", lat == 0 ? 36.336541 : lat);
         fieldMap.put("reqCoordType","WGS84GEO");
+        fieldMap.put("resCoordType","WGS84GEO");
         Log.d("search lat"+lat.toString(),"lon"+lon.toString());
         fieldMap.put("searchtypCd", "R");
 
@@ -166,7 +167,6 @@ public class SearchDestActivity extends AppCompatActivity {
 
         adapter = new SearchDestRecycleAdapter(getApplicationContext(), items);
         recyclerView.setAdapter(adapter);
-
 
     }
 }

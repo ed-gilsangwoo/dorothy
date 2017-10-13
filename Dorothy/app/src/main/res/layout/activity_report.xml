@@ -26,16 +26,17 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="18"
+        android:baselineAligned="false"
         android:orientation="vertical"
-        android:padding="20dp"
-        android:baselineAligned="false">
+        android:padding="20dp">
+
         <LinearLayout
             android:id="@+id/layout1"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
+            android:layout_marginLeft="15dp"
             android:layout_marginTop="15dp"
-            android:layout_marginLeft="15dp">
+            android:orientation="vertical">
 
             <TextView
                 android:layout_width="wrap_content"
@@ -53,15 +54,15 @@
 
         <LinearLayout
             android:id="@+id/buttonLayout"
-            android:layout_below="@+id/layout1"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_below="@+id/layout1"
             android:layout_marginTop="20dp"
             android:gravity="center"
             android:orientation="horizontal">
 
             <Button
-                android:id="@+id/button1"
+                android:id="@+id/btn_roadDamage"
                 android:layout_width="wrap_content"
                 android:layout_height="40dp"
                 android:background="@drawable/button_stroke"
@@ -69,7 +70,7 @@
                 android:textColor="#848484" />
 
             <Button
-                android:id="@+id/button2"
+                android:id="@+id/btn_flood"
                 android:layout_width="wrap_content"
                 android:layout_height="40dp"
                 android:layout_marginLeft="20dp"
@@ -79,7 +80,7 @@
                 android:textColor="#848484" />
 
             <Button
-                android:id="@+id/button3"
+                android:id="@+id/btn_landslide"
                 android:layout_width="wrap_content"
                 android:layout_height="40dp"
                 android:background="@drawable/button_stroke"
@@ -89,34 +90,89 @@
 
         <com.kofigyan.stateprogressbar.StateProgressBar
             android:id="@+id/progress_bar"
-            android:layout_below="@+id/buttonLayout"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_below="@+id/buttonLayout"
             android:layout_marginTop="20dp"
-            app:spb_currentStateNumber="one"
+            app:spb_animateToCurrentProgressState="true"
+            app:spb_currentStateDescriptionColor="@color/colorPrimary"
+            app:spb_currentStateNumber="three"
+            app:spb_descriptionTopSpaceIncrementer="8.0dp"
             app:spb_maxStateNumber="three"
             app:spb_stateBackgroundColor="#BDBDBD"
+            app:spb_stateDescriptionColor="#808080"
+            app:spb_stateDescriptionSize="12dp"
             app:spb_stateForegroundColor="@color/colorPrimary"
             app:spb_stateNumberBackgroundColor="#808080"
-            app:spb_stateNumberForegroundColor="#eeeeee"
-            app:spb_currentStateDescriptionColor="@color/colorPrimary"
-            app:spb_stateDescriptionColor="#808080"
-            app:spb_animateToCurrentProgressState="true"
-            app:spb_descriptionTopSpaceIncrementer="8.0dp"
-            app:spb_stateDescriptionSize="12dp"/>
+            app:spb_stateNumberForegroundColor="#eeeeee" />
+
+        <Button
+            android:id="@+id/strength1"
+            android:layout_width="35dp"
+            android:layout_height="50dp"
+            android:layout_alignParentLeft="true"
+            android:layout_below="@+id/buttonLayout"
+            android:layout_marginLeft="40dp"
+            android:layout_marginTop="15dp"
+            android:background="#00ff0000" />
+
+        <Button
+            android:id="@+id/strength2"
+            android:layout_width="35dp"
+            android:layout_height="50dp"
+            android:layout_below="@+id/buttonLayout"
+            android:layout_centerInParent="true"
+            android:layout_marginTop="15dp"
+            android:background="#00ff0000" />
+
+        <Button
+            android:id="@+id/strength3"
+            android:layout_width="35dp"
+            android:layout_height="50dp"
+            android:layout_alignParentRight="true"
+            android:layout_below="@+id/buttonLayout"
+            android:layout_marginRight="40dp"
+            android:layout_marginTop="15dp"
+            android:background="#00ff0000" />
 
         <Button
             android:layout_width="250dp"
             android:layout_height="wrap_content"
-            android:background="@color/colorPrimary"
+            android:layout_alignParentBottom="true"
+            android:layout_centerHorizontal="true"
             android:layout_gravity="bottom|center"
+            android:layout_margin="20dp"
+            android:background="@color/colorPrimary"
             android:text="신고하기"
             android:textColor="#FFFFFF"
             android:textSize="15dp"
-            android:textStyle="bold"
-            android:layout_margin="20dp"
+            android:textStyle="bold" />
+
+        <Button
+            android:layout_width="250dp"
+            android:layout_height="wrap_content"
             android:layout_alignParentBottom="true"
-            android:layout_centerHorizontal="true" />
+            android:layout_centerHorizontal="true"
+            android:layout_gravity="bottom|center"
+            android:layout_margin="20dp"
+            android:background="@color/colorPrimary"
+            android:text="신고하기"
+            android:textColor="#FFFFFF"
+            android:textSize="15dp"
+            android:textStyle="bold" />
+
+        <Button
+            android:layout_width="250dp"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_centerHorizontal="true"
+            android:layout_gravity="bottom|center"
+            android:layout_margin="20dp"
+            android:background="@color/colorPrimary"
+            android:text="신고하기"
+            android:textColor="#FFFFFF"
+            android:textSize="15dp"
+            android:textStyle="bold" />
 
 
     </RelativeLayout>

@@ -58,6 +58,8 @@ public class SearchDestRecycleAdapter extends RecyclerView.Adapter<SearchDestRec
                 intent.putExtra("address",destItems.get(position).getAddress());
                 intent.putExtra("currentLatitude", lat);
                 intent.putExtra("currentLongitude",lon);
+                intent.putExtra("noorLat",destItems.get(position).getNoorLat());
+                intent.putExtra("noorLon",destItems.get(position).getNoorLon());
                 intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_MULTIPLE_TASK);
                 context.startActivity(intent);
             }

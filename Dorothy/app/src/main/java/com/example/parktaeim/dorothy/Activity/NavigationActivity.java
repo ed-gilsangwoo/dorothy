@@ -56,38 +56,45 @@ public class NavigationActivity extends AppCompatActivity {
 
     private void setNavigation() {
         Intent intent = getIntent();
-        double lat = intent.getDoubleExtra("currentLatitude",-1);
-        double lon = intent.getDoubleExtra("currentLongitude",-1);
-        Log.d("setNavi location======"+String.valueOf(lat),String.valueOf(lon));
+        double currentLatitude = intent.getDoubleExtra("currentLatitude",-1);
+        double currentLongitude = intent.getDoubleExtra("currentLongitude",-1);
+        Log.d("setNavi location======"+String.valueOf(currentLatitude),String.valueOf(currentLongitude));
 
+        Intent getNoor = getIntent();
+        double noorLat = getNoor.getDoubleExtra("noorLat",-1);
+        double noorLon = getNoor.getDoubleExtra("noorLon",-1);
         HashMap<String, Object> fieldMap = new HashMap<>();
-//        fieldMap.put("startX", );
-//        fieldMap.put("startY", );
-//        fieldMap.put("endX", );
-//        fieldMap.put("endY", );
+        fieldMap.put("startX",currentLatitude);
+        fieldMap.put("startY", currentLongitude);
+        fieldMap.put("endX", noorLat);
+        fieldMap.put("endY", noorLon);
+        fieldMap.put("reqCoordType","WGS84GEO");
 
-//        OkHttpClient client = new OkHttpClient.Builder()
-//                .connectTimeout(100, TimeUnit.SECONDS)
-//                .readTimeout(100, TimeUnit.SECONDS).build();
-//
-//        Retrofit builder = new Retrofit.Builder()
-//                .baseUrl(APIUrl.TMAP_BASE_URL).client(client)
-//                .addConverterFactory(GsonConverterFactory.create())
-//                .build();
-//        RestAPI restAPI = builder.create(RestAPI.class);
-//
-//        Call<JsonObject> call = restAPI.navigation("application/json",getString(R.string.tmap_app_key),fieldMap);
-//        call.enqueue(new Callback<JsonObject>() {
-//            @Override
-//            public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
-//
-//            }
-//
-//            @Override
-//            public void onFailure(Call<JsonObject> call, Throwable t) {
-//
-//            }
-//        });
+        Log.d("startX : "+String.valueOf(currentLatitude),"startY : "+String.valueOf(currentLongitude));
+        Log.d("endX : "+ String.valueOf(noorLat),"endY :"+String.valueOf(noorLon));
+
+        OkHttpClient client = new OkHttpClient.Builder()
+                .connectTimeout(100, TimeUnit.SECONDS)
+                .readTimeout(100, TimeUnit.SECONDS).build();
+
+        Retrofit builder = new Retrofit.Builder()
+                .baseUrl(APIUrl.TMAP_BASE_URL).client(client)
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+        RestAPI restAPI = builder.create(RestAPI.class);
+
+        Call<JsonObject> call = restAPI.navigation("application/json",getString(R.string.tmap_app_key),fieldMap);
+        call.enqueue(new Callback<JsonObject>() {
+            @Override
+            public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
+                Log.d("Navigation response===",String.valueOf(response.code()));
+            }
+
+            @Override
+            public void onFailure(Call<JsonObject> call, Throwable t) {
+
+            }
+        });
     }
 
     private void setMap() {
