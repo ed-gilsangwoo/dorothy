@@ -36,7 +36,9 @@
         <activity android:name=".Activity.ReportActivity">
 
         </activity>
-        <activity android:name=".Activity.NavigationActivity"/>
+        <activity android:name=".Activity.NavigationActivity">
+
+        </activity>
     </application>
 
 </manifest>

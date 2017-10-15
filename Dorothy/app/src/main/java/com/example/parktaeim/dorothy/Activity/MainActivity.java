@@ -101,8 +101,9 @@ public class MainActivity extends AppCompatActivity implements TMapGpsManager.on
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, LOCATION_PERMS, REQUEST_CODE_LOCATION);
         } else {
-            setMap();
             setSearch();
+            setMap();
+
         }
     }
 
@@ -146,6 +147,7 @@ public class MainActivity extends AppCompatActivity implements TMapGpsManager.on
         destEditText = (EditText) findViewById(R.id.destEditText);
         searchIcon = (ImageView) findViewById(R.id.searchIcon);
 
+        destEditText.requestFocus();
 //        검색버튼 클릭시
         searchIcon.setOnClickListener(new View.OnClickListener() {
             @Override

@@ -83,8 +83,9 @@ public class SearchDestActivity extends AppCompatActivity {
         Intent intent = getIntent();
         destination = intent.getExtras().getString("destination");
         String address = intent.getExtras().getString("address");
-        lat = intent.getExtras().getDouble("currentLatitude");
-        lon = intent.getExtras().getDouble("currentLongitude");
+        lat = intent.getDoubleExtra("currentLatitude",-1);
+        lon = intent.getDoubleExtra("currentLongitude",-1);
+        Log.d("search getCurrentLat",lat.toString());
 
         String encodedKeyword = null;
 
@@ -134,7 +135,7 @@ public class SearchDestActivity extends AppCompatActivity {
                         String address = location.get("upperAddrName").getAsString() + " " + location.get("middleAddrName").getAsString()
                                 + " " + location.get("lowerAddrName").getAsString() + " " + location.get("roadName").getAsString();
 
-                        items.add(new SearchDestItem(name, address, radius, frontLat, frontLon, noorLat, noorLon));
+                        items.add(new SearchDestItem(name, address, radius, frontLat, frontLon, noorLat, noorLon,lat,lon));
                         Log.d("item add=====",name.toString());
                         adapter.notifyDataSetChanged();
                     }

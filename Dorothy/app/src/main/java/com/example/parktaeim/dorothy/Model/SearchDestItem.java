@@ -14,6 +14,38 @@ public class SearchDestItem  {
     private Double noorLat;
     private Double noorLon;
 
+    private Double currentLat;
+    private Double currentLon;
+
+    public Double getCurrentLat() {
+        return currentLat;
+    }
+
+    public void setCurrentLat(Double currentLat) {
+        this.currentLat = currentLat;
+    }
+
+    public Double getCurrentLon() {
+        return currentLon;
+    }
+
+    public void setCurrentLon(Double currentLot) {
+        this.currentLon = currentLot;
+    }
+
+    public SearchDestItem(String destination, String address, Double distance, Double frontLat, Double frontLon, Double noorLat, Double noorLon, Double currentLat, Double currentLon) {
+
+        this.destination = destination;
+        this.address = address;
+        this.distance = distance;
+        this.frontLat = frontLat;
+        this.frontLon = frontLon;
+        this.noorLat = noorLat;
+        this.noorLon = noorLon;
+        this.currentLat = currentLat;
+        this.currentLon = currentLon;
+    }
+
     public SearchDestItem(String destination, String address, Double distance, Double frontLat, Double frontLon, Double noorLat, Double noorLon) {
         this.destination = destination;
         this.address = address;
