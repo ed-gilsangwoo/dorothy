@@ -47,6 +47,9 @@ public class NavigationActivity extends AppCompatActivity {
     private TextView bottomTimeTextView;
     private TextView destNameTextView;
     private TextView addressTextView;
+    private RelativeLayout bottomDownLayout;
+    private RelativeLayout bottomUpLayout;
+    private RelativeLayout downArrowLayout;
 
     ArrayList<DestinationResponseItem> geometryArrayList;
     ArrayList<DestinationResponseItem> propertiesArrayList;
@@ -59,7 +62,33 @@ public class NavigationActivity extends AppCompatActivity {
         setLayout();
         setMap();
         setNavigation();
+        setBottomLayout();
 
+    }
+
+    private void setBottomLayout() {
+        bottomDownLayout = (RelativeLayout) findViewById(R.id.bottomDownLayout);
+        bottomUpLayout = (RelativeLayout) findViewById(R.id.bottomUpLayout);
+        downArrowLayout = (RelativeLayout) findViewById(R.id.downArrowLayout);
+
+        bottomUpLayout.setVisibility(View.GONE);
+        bottomDownLayout.setVisibility(View.VISIBLE);
+
+        bottomDownLayout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                bottomUpLayout.setVisibility(View.VISIBLE);
+                bottomDownLayout.setVisibility(View.GONE);
+            }
+        });
+
+        downArrowLayout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                bottomUpLayout.setVisibility(View.GONE);
+                bottomDownLayout.setVisibility(View.VISIBLE);
+            }
+        });
     }
 
     private void setNavigation() {
