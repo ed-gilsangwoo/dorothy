@@ -21,7 +21,11 @@
 
         </activity>
         <activity android:name=".Activity.SplashActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
 
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
         </activity>
         <activity android:name=".Activity.StartActivity">
 
@@ -30,11 +34,7 @@
         <activity android:name=".Activity.SignUpActivity"/>
         <activity android:name=".Activity.SearchDestActivity"/>
         <activity android:name=".Activity.ReportActivity">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
 
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
         </activity>
         <activity android:name=".Activity.NavigationActivity">
 

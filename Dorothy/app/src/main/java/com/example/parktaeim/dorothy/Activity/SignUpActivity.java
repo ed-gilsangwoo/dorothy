@@ -9,8 +9,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
 import com.example.parktaeim.dorothy.APIUrl;
 import com.example.parktaeim.dorothy.R;
 import com.example.parktaeim.dorothy.RestAPI;
@@ -37,6 +39,7 @@ public class SignUpActivity extends AppCompatActivity {
     private EditText phoneEditText;
     private EditText nameEditText;
     private EditText pwCheckEditText;
+    private ImageView backgroundImg;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -49,17 +52,20 @@ public class SignUpActivity extends AppCompatActivity {
         nameEditText = (EditText) findViewById(R.id.nameEditText);
         pwCheckEditText = (EditText) findViewById(R.id.pwCheckEditText);
 
-        backLayoout = (ViewGroup) findViewById(R.id.backLayout);
-        backLayoout.post(new Runnable() {   // 백그라운드 이미지 블러 효과
-            @Override
-            public void run() {
-                Blurry.with(SignUpActivity.this)
-                        .radius(10)
-                        .sampling(4)
-                        .async()
-                        .onto(backLayoout);
-            }
-        });
+        backgroundImg = (ImageView) findViewById(R.id.img_background);
+        Glide.with(this).load(R.drawable.img_blur_login).into(backgroundImg);
+
+//        backLayoout = (ViewGroup) findViewById(R.id.backLayout);
+//        backLayoout.post(new Runnable() {   // 백그라운드 이미지 블러 효과
+//            @Override
+//            public void run() {
+//                Blurry.with(SignUpActivity.this)
+//                        .radius(10)
+//                        .sampling(4)
+//                        .async()
+//                        .onto(backLayoout);
+//            }
+//        });
 
         signupBtn = (Button) findViewById(R.id.signUpBtn);
         signupBtn.setOnClickListener(new View.OnClickListener() {
