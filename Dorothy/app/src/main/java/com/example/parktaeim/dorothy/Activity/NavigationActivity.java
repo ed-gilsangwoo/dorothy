@@ -132,17 +132,17 @@ public class NavigationActivity extends AppCompatActivity {
                             if(i==0){
                                 getPropertiesStartArray(arrayList);
                             }else {
-                                getPropertiesPointArray(arrayList);
+                                getPropertiesPointArray(arrayList,i);
                             }
                         } else if (geometryArrayList.get(i).getGeometryType().equals("\"LineString\"")) {
-                            getPropertiesLineStringArray(arrayList);
+                            getPropertiesLineStringArray(arrayList,i);
                         }
 
                 }
     Log.d("proper check for after",propertiesArrayList.get(0).getDescription());
                 for(int j=0;j<propertiesArrayList.size();j++){
                     Log.d("propertiesArraySize",String.valueOf(propertiesArrayList.size()));
-                    System.out.println(propertiesArrayList.get(j).getDescription());
+                    System.out.println("aaaaa==="+propertiesArrayList.get(j).getDescription());
                 }
             }
 
@@ -173,8 +173,7 @@ public class NavigationActivity extends AppCompatActivity {
 
     }
 
-    private void getPropertiesPointArray(ArrayList<DestinationResponseItem> arrayList) {
-        for (int i = 0; i < arrayList.size(); i++) {
+    private void getPropertiesPointArray(ArrayList<DestinationResponseItem> arrayList,int i) {
             try{
                 JsonObject jsonObject = arrayList.get(i).getProperties();
                 int index = Integer.valueOf(jsonObject.getAsJsonPrimitive("index").toString());
@@ -189,13 +188,9 @@ public class NavigationActivity extends AppCompatActivity {
             }catch (Exception e){
                 e.printStackTrace();
             }
-
-        }
     }
 
-    private void getPropertiesLineStringArray(ArrayList<DestinationResponseItem> arrayList) {
-        for (int i = 0; i < arrayList.size(); i++) {
-
+    private void getPropertiesLineStringArray(ArrayList<DestinationResponseItem> arrayList,int i) {
             try{
                 JsonObject jsonObject = arrayList.get(i).getProperties();
                 int index = Integer.valueOf(jsonObject.getAsJsonPrimitive("index").toString());
@@ -211,9 +206,6 @@ public class NavigationActivity extends AppCompatActivity {
             }catch (Exception e){
                 e.printStackTrace();
             }
-
-        }
-
     }
 
 

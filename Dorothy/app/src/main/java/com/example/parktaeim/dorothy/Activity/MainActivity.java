@@ -20,6 +20,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
@@ -68,14 +69,6 @@ public class MainActivity extends AppCompatActivity implements TMapGpsManager.on
     public void onLocationChange(Location location) {
         Log.d("Start OnLocationChange",location.toString());
         if (mTrackingMode) {
-
-            Log.d("Start OnLocationChange", location.toString());
-            double latitude = location.getLatitude();
-            double longitude = location.getLongitude();
-            double accuracy = location.getAccuracy();
-
-            System.out.println(latitude + longitude + accuracy);
-
             tMapView.setLocationPoint(location.getLatitude(), location.getLongitude());
             Log.d(String.valueOf(location.getLatitude()), String.valueOf(location.getLongitude()));
             tMapView.setCenterPoint(location.getLatitude(), location.getLongitude());
@@ -111,7 +104,7 @@ public class MainActivity extends AppCompatActivity implements TMapGpsManager.on
     private void setMap() {
         Log.d("!@#!@##!@", "setMap: ");
 
-        RelativeLayout relativeLayout = (RelativeLayout) findViewById(R.id.map_view);
+        LinearLayout relativeLayout = (LinearLayout) findViewById(R.id.map_view);
         tMapView = new TMapView(this);
         relativeLayout.addView(tMapView);
         tMapView.setSKPMapApiKey(getString(R.string.tmap_app_key));
@@ -129,8 +122,10 @@ public class MainActivity extends AppCompatActivity implements TMapGpsManager.on
 //        tMapGps.setProvider(tMapGps.GPS_PROVIDER);    // 현위치 gps 이용
         tMapGps.OpenGps();
 
+
         tMapView.setTrackingMode(true);   //트래킹모드
         tMapView.setSightVisible(true);
+
 
 //        try{
 //            Log.d("setmap ====","location updates");
@@ -142,6 +137,7 @@ public class MainActivity extends AppCompatActivity implements TMapGpsManager.on
 //        }
 
     }
+
 
     private void setSearch() {
         destEditText = (EditText) findViewById(R.id.destEditText);

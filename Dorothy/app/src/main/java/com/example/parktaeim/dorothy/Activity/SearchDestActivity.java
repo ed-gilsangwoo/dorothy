@@ -98,7 +98,7 @@ public class SearchDestActivity extends AppCompatActivity {
         Toast.makeText(getApplicationContext(), "URLENCODED SEARCHKEYWORD : " + encodedKeyword, Toast.LENGTH_SHORT).show();
 
         HashMap<String, Object> fieldMap = new HashMap<>();
-        fieldMap.put("count", 40);
+        fieldMap.put("count", 99);
         fieldMap.put("searchType", "all");
         fieldMap.put("searchKeyword", encodedKeyword);
         fieldMap.put("radius", 33);
@@ -107,7 +107,7 @@ public class SearchDestActivity extends AppCompatActivity {
         fieldMap.put("reqCoordType","WGS84GEO");
         fieldMap.put("resCoordType","WGS84GEO");
         Log.d("search lat"+lat.toString(),"lon"+lon.toString());
-        fieldMap.put("searchtypCd", "R");
+        fieldMap.put("searchtypCd", "A");
 
         Call<JsonObject> call = restAPI.search("application/json", getString(R.string.tmap_app_key), fieldMap);
 
