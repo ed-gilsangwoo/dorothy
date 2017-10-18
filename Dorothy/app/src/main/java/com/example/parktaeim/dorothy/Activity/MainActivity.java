@@ -69,9 +69,9 @@ public class MainActivity extends AppCompatActivity implements TMapGpsManager.on
     public void onLocationChange(Location location) {
         Log.d("Start OnLocationChange",location.toString());
         if (mTrackingMode) {
-            tMapView.setLocationPoint(location.getLatitude(), location.getLongitude());
+            tMapView.setLocationPoint(location.getLongitude(), location.getLatitude());
             Log.d(String.valueOf(location.getLatitude()), String.valueOf(location.getLongitude()));
-            tMapView.setCenterPoint(location.getLatitude(), location.getLongitude());
+            tMapView.setCenterPoint(location.getLongitude(), location.getLatitude());
 
             currentLatitude = location.getLatitude();
             currentLongitude = location.getLongitude();
