@@ -1,6 +1,7 @@
 package com.example.parktaeim.dorothy.Activity;
 
 import android.content.Intent;
+import android.location.Location;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
@@ -16,6 +17,10 @@ import com.example.parktaeim.dorothy.RestAPI;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.skp.Tmap.TMapData;
+import com.skp.Tmap.TMapGpsManager;
+import com.skp.Tmap.TMapPoint;
+import com.skp.Tmap.TMapPolyLine;
 import com.skp.Tmap.TMapView;
 
 import org.json.JSONObject;
@@ -36,7 +41,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
  * Created by parktaeim on 2017. 10. 12..
  */
 
-public class NavigationActivity extends AppCompatActivity {
+public class NavigationActivity extends AppCompatActivity implements TMapGpsManager.onLocationChangedCallback{
 
     private RelativeLayout beforeStartLayout;
     private RelativeLayout startLayout;
@@ -50,6 +55,12 @@ public class NavigationActivity extends AppCompatActivity {
     private RelativeLayout bottomDownLayout;
     private RelativeLayout bottomUpLayout;
     private RelativeLayout downArrowLayout;
+    private boolean mTrackingMode = false;
+
+
+    private TMapGpsManager tMapGps;
+    final TMapData tmapData = new TMapData();
+
 
     ArrayList<DestinationResponseItem> geometryArrayList;
     ArrayList<DestinationResponseItem> propertiesArrayList;
@@ -91,11 +102,23 @@ public class NavigationActivity extends AppCompatActivity {
         });
     }
 
+    @Override
+    public void onLocationChange(Location location) {
+        if(mTrackingMode) {
+            tMapView.setLocationPoint(location.getLongitude(), location.getLatitude());
+            tMapView.setCenterPoint(location.getLongitude(), location.getLatitude());
+
+            Log.d("naviActi current Loc ="+String.valueOf(location.getLatitude()), String.valueOf(location.getLongitude()));
+
+        }
+    }
+
     private void setNavigation() {
         Intent intent = getIntent();
         double currentLatitude = intent.getDoubleExtra("currentLatitude", -1);
         double currentLongitude = intent.getDoubleExtra("currentLongitude", -1);
         Log.d("setNavi location======" + String.valueOf(currentLatitude), String.valueOf(currentLongitude));
+
 
         Intent getNoor = getIntent();
         double noorLat = getNoor.getDoubleExtra("noorLat", -1);
@@ -107,6 +130,25 @@ public class NavigationActivity extends AppCompatActivity {
         fieldMap.put("endY", noorLat);
         fieldMap.put("reqCoordType", "WGS84GEO");
         fieldMap.put("resCoordType", "WGS84GEO");
+
+
+        // 경로 그리기
+        final TMapPoint startPoint = new TMapPoint(currentLatitude,currentLongitude);   // 현재 위치
+        final TMapPoint destPoint = new TMapPoint(noorLat,noorLon);  // 도착 위치
+
+        tmapData.findPathDataWithType(TMapData.TMapPathType.PEDESTRIAN_PATH, startPoint, destPoint, new TMapData.FindPathDataListenerCallback() {
+            @Override
+            public void onFindPathData(TMapPolyLine tMapPolyLine) {
+                Log.d("path start======"+String.valueOf(startPoint.getLatitude()),String.valueOf(startPoint.getLongitude()));
+                Log.d("path dest======"+String.valueOf(destPoint.getLatitude()),String.valueOf(destPoint.getLongitude()));
+                tMapView.setLocationPoint(startPoint.getLongitude(),startPoint.getLatitude());
+                tMapView.addTMapPath(tMapPolyLine);
+                mTrackingMode = true;
+                Log.d("path poly","finish=========");
+
+            }
+        });
+
 
         Log.d("startX : " + String.valueOf(currentLatitude), "startY : " + String.valueOf(currentLongitude));
         Log.d("endX : " + String.valueOf(noorLat), "endY :" + String.valueOf(noorLon));
@@ -256,11 +298,25 @@ public class NavigationActivity extends AppCompatActivity {
 
         tMapView.setCompassMode(true);    // 현재 보는 방향
         tMapView.setIconVisibility(true);   // 아이콘 표시
-        tMapView.setZoomLevel(15);   // 줌레벨
+//        tMapView.setZoomLevel(15);   // 줌레벨
         tMapView.setMapType(TMapView.MAPTYPE_STANDARD);
         tMapView.setLanguage(TMapView.LANGUAGE_KOREAN);
 
+        tMapGps = new TMapGpsManager(NavigationActivity.this);
+        tMapGps.setMinTime(100);
+        tMapGps.setMinDistance(5);
+        tMapGps.setProvider(tMapGps.NETWORK_PROVIDER);  // 인터넷 이용 (실내일때 유용)
+//        tMapGps.setProvider(tMapGps.GPS_PROVIDER);    // 현위치 gps 이용
+        tMapGps.OpenGps();
+
+        mTrackingMode = false;
+        tMapView.setTrackingMode(false);
+//        final TMapPoint startPoint = tMapView.getLocationPoint();
+
+
     }
+
+
 
     private void setLayout() {
         beforeStartLayout = (RelativeLayout) findViewById(R.id.beforeStartNaviLayout);
@@ -274,12 +330,18 @@ public class NavigationActivity extends AppCompatActivity {
 
         // Setting Layout
         startLayout.setVisibility(View.GONE);
+//        setBeforeStartNaviMap();
 
         startButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 beforeStartLayout.setVisibility(View.GONE);
                 startLayout.setVisibility(View.VISIBLE);
+                tMapView.removeTMapPath();
+                tMapView.setZoomLevel(15);
+                tMapView.setTrackingMode(mTrackingMode);   //트래킹모드
+                tMapView.setSightVisible(true);
+//                setStartNaviMap();
             }
         });
 
@@ -290,5 +352,25 @@ public class NavigationActivity extends AppCompatActivity {
         bottomDestNameTextView.setText(intent.getStringExtra("destination"));
         bottomAddressTextView.setText(intent.getStringExtra("address"));
 
+
+
     }
+
+//    private void setBeforeStartNaviMap() {
+//        RelativeLayout relativeLayout = (RelativeLayout) findViewById(R.id.map_view);
+//        tMapView = new TMapView(this);
+//        relativeLayout.addView(tMapView);
+//        tMapView.setSKPMapApiKey(getString(R.string.tmap_app_key));
+//
+//        tMapView.setCompassMode(true);    // 현재 보는 방향
+//        tMapView.setIconVisibility(true);   // 아이콘 표시
+//        tMapView.setZoomLevel(15);   // 줌레벨
+//        tMapView.setMapType(TMapView.MAPTYPE_STANDARD);
+//        tMapView.setLanguage(TMapView.LANGUAGE_KOREAN);
+//
+//
+//    }
+//
+//    private void setStartNaviMap() {
+//    }
 }

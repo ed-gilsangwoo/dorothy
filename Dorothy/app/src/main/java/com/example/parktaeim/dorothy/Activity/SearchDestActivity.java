@@ -157,6 +157,7 @@ public class SearchDestActivity extends AppCompatActivity {
         destEditText = (EditText) findViewById(R.id.destEditText);
         destEditText.setText(destination);
 
+
     }
 
     private void setUpRecyclerView() {

@@ -139,6 +139,8 @@ public class MainActivity extends AppCompatActivity implements TMapGpsManager.on
     }
 
 
+
+
     private void setSearch() {
         destEditText = (EditText) findViewById(R.id.destEditText);
         searchIcon = (ImageView) findViewById(R.id.searchIcon);
