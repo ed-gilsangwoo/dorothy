@@ -38,6 +38,11 @@ public class ReportActivity extends AppCompatActivity {
 
         initStrengthBar();
         initStateButtons();
+        initSubmitButton();
+    }
+
+    private void initSubmitButton() {
+
     }
 
     private void initStrengthBar() {
@@ -54,6 +59,7 @@ public class ReportActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 strength = 1;
+                strengthBar.animate();
                 strengthBar.setCurrentStateNumber(StateProgressBar.StateNumber.ONE);
                 Toast.makeText(getApplicationContext(), strength + "", Toast.LENGTH_SHORT).show();
             }
@@ -63,6 +69,7 @@ public class ReportActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 strength = 2;
+                strengthBar.animate();
                 strengthBar.setCurrentStateNumber(StateProgressBar.StateNumber.TWO);
                 Toast.makeText(getApplicationContext(), strength + "", Toast.LENGTH_SHORT).show();
             }
@@ -72,6 +79,7 @@ public class ReportActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 strength = 3;
+                strengthBar.animate();
                 strengthBar.setCurrentStateNumber(StateProgressBar.StateNumber.THREE);
                 Toast.makeText(getApplicationContext(), strength + "", Toast.LENGTH_SHORT).show();
             }
