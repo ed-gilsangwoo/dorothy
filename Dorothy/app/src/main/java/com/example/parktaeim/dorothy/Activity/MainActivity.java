@@ -20,6 +20,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
@@ -43,8 +44,8 @@ public class MainActivity extends AppCompatActivity implements TMapGpsManager.on
     private static final int CONTACTS_REQUEST = INITIAL_REQUEST + 2;
     private static final int LOCATION_REQUEST = INITIAL_REQUEST + 3;
 
-    private double latitude;
-    private double longitude;
+    private double currentLatitude;
+    private double currentLongitude;
     private EditText destEditText;
     private ImageView searchIcon;
     private String destination;
@@ -68,20 +69,14 @@ public class MainActivity extends AppCompatActivity implements TMapGpsManager.on
     public void onLocationChange(Location location) {
         Log.d("Start OnLocationChange",location.toString());
         if (mTrackingMode) {
-
-            Log.d("Start OnLocationChange", location.toString());
-            double latitude = location.getLatitude();
-            double longitude = location.getLongitude();
-            double accuracy = location.getAccuracy();
-
-            System.out.println(latitude + longitude + accuracy);
-
-            tMapView.setLocationPoint(location.getLatitude(), location.getLongitude());
+            tMapView.setLocationPoint(location.getLongitude(), location.getLatitude());
             Log.d(String.valueOf(location.getLatitude()), String.valueOf(location.getLongitude()));
-            tMapView.setCenterPoint(location.getLatitude(), location.getLongitude());
+            tMapView.setCenterPoint(location.getLongitude(), location.getLatitude());
+
+            currentLatitude = location.getLatitude();
+            currentLongitude = location.getLongitude();
 
 //            tMapView.setLocationPoint(location.getLatitude(), location.getLongitude());
-            Log.d(String.valueOf(location.getLatitude()),String.valueOf(location.getLongitude()));
 //            tMapView.setCenterPoint(location.getLatitude(),location.getLongitude());
 //            tMapView.setMapPosition(location.getLatitude(),location.getLongitude());
         }
@@ -99,8 +94,9 @@ public class MainActivity extends AppCompatActivity implements TMapGpsManager.on
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, LOCATION_PERMS, REQUEST_CODE_LOCATION);
         } else {
-            setMap();
             setSearch();
+            setMap();
+
         }
     }
 
@@ -108,7 +104,7 @@ public class MainActivity extends AppCompatActivity implements TMapGpsManager.on
     private void setMap() {
         Log.d("!@#!@##!@", "setMap: ");
 
-        RelativeLayout relativeLayout = (RelativeLayout) findViewById(R.id.map_view);
+        LinearLayout relativeLayout = (LinearLayout) findViewById(R.id.map_view);
         tMapView = new TMapView(this);
         relativeLayout.addView(tMapView);
         tMapView.setSKPMapApiKey(getString(R.string.tmap_app_key));
@@ -126,8 +122,10 @@ public class MainActivity extends AppCompatActivity implements TMapGpsManager.on
 //        tMapGps.setProvider(tMapGps.GPS_PROVIDER);    // 현위치 gps 이용
         tMapGps.OpenGps();
 
+
         tMapView.setTrackingMode(true);   //트래킹모드
         tMapView.setSightVisible(true);
+
 
 //        try{
 //            Log.d("setmap ====","location updates");
@@ -140,65 +138,6 @@ public class MainActivity extends AppCompatActivity implements TMapGpsManager.on
 
     }
 
-//    @Override
-//    protected void onStart() {
-//        super.onStart();
-//        Log.d("onStart", "========");
-//
-//        Location location = locationManager.getLastKnownLocation(networkProvider);
-//
-//        if (location != null) {
-//            System.out.println("왜 안되지 거지같다ㅠㅠ");
-//
-//            mListener.onLocationChanged(location);
-//            System.out.println("왜 안되지 거지같다ㅠㅠ");
-//
-//
-//        }
-//        locationManager.requestSingleUpdate(networkProvider, mListener, null);
-//
-//        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-//            Log.d("onStart==== ", "checkPermission");
-//            return;
-//        }
-//
-//
-//    }
-
-
-//    private final LocationListener mListener = new LocationListener() {
-//        @Override
-//        public void onLocationChanged(Location location) {
-//            Log.d("Start OnLocationChange", location.toString());
-//
-//                Log.d("Start OnLocationChange", location.toString());
-//                double latitude = location.getLatitude();
-//                double longitude = location.getLongitude();
-//                double accuracy = location.getAccuracy();
-//
-//                System.out.println(latitude + longitude + accuracy);
-//
-//                tMapView.setLocationPoint(location.getLatitude(), location.getLongitude());
-//                Log.d(String.valueOf(location.getLatitude()), String.valueOf(location.getLongitude()));
-//                tMapView.setCenterPoint(location.getLatitude(), location.getLongitude());
-//
-//        }
-//
-//        @Override
-//        public void onStatusChanged(String s, int i, Bundle bundle) {
-//
-//        }
-//
-//        @Override
-//        public void onProviderEnabled(String s) {
-//
-//        }
-//
-//        @Override
-//        public void onProviderDisabled(String s) {
-//
-//        }
-//    };
 
 
 
@@ -206,16 +145,26 @@ public class MainActivity extends AppCompatActivity implements TMapGpsManager.on
         destEditText = (EditText) findViewById(R.id.destEditText);
         searchIcon = (ImageView) findViewById(R.id.searchIcon);
 
+        destEditText.requestFocus();
 //        검색버튼 클릭시
         searchIcon.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                destination = destEditText.getText().toString();
-                Intent intent = new Intent(MainActivity.this, SearchDestActivity.class);
-                intent.putExtra("destination", destination); //edittext에 입력된 값 넘기기
-                intent.putExtra("lat", tMapGps.getLocation().getLatitude());
-                intent.putExtra("lon", tMapGps.getLocation().getLongitude());
-                startActivity(intent);
+                if(currentLatitude == 0 || currentLongitude == 0){
+                    Toast.makeText(MainActivity.this,"잠시만 기다려주세요",Toast.LENGTH_SHORT).show();
+                    return;
+                }else {
+                    destination = destEditText.getText().toString();
+                    Log.d("getText MainActi===",destination);
+                    Intent intent = new Intent(MainActivity.this, SearchDestActivity.class);
+                    intent.putExtra("destination", destination); //edittext에 입력된 값 넘기기
+                    intent.putExtra("currentLatitude", currentLatitude);
+                    intent.putExtra("currentLongitude", currentLongitude);
+                    Log.d("onClick Location======"+String.valueOf(currentLatitude),String.valueOf(currentLongitude));
+                    startActivity(intent);
+                    return;
+                }
+
             }
         });
 

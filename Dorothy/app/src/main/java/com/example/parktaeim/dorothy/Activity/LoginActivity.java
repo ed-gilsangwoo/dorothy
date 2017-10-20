@@ -1,6 +1,7 @@
 package com.example.parktaeim.dorothy.Activity;
 
 import android.content.Intent;
+import android.media.Image;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.support.annotation.Nullable;
@@ -10,8 +11,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
 import com.example.parktaeim.dorothy.APIUrl;
 import com.example.parktaeim.dorothy.R;
 import com.example.parktaeim.dorothy.RestAPI;
@@ -31,7 +34,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
  */
 
 public class LoginActivity extends AppCompatActivity {
-    private ViewGroup backLayoout;
+    private ImageView backgroundImg;
     private Button loginBtn;
     private EditText idEditText;
     private EditText pwEditText;
@@ -45,17 +48,8 @@ public class LoginActivity extends AppCompatActivity {
         idEditText = (EditText) findViewById(R.id.idEditText);
         pwEditText = (EditText) findViewById(R.id.pwEditText);
 
-        backLayoout = (ViewGroup) findViewById(R.id.backLayout);
-        backLayoout.post(new Runnable() {   // 백그라운드 이미지 블러 효과
-            @Override
-            public void run() {
-                Blurry.with(LoginActivity.this)
-                        .radius(10)
-                        .sampling(4)
-                        .async()
-                        .onto(backLayoout);
-            }
-        });
+        backgroundImg = (ImageView) findViewById(R.id.img_blur_login);
+        Glide.with(this).load(R.drawable.img_blur_login).into(backgroundImg);
 
         loginBtn = (Button) findViewById(R.id.loginBtn);
         loginBtn.setOnClickListener(new View.OnClickListener() {

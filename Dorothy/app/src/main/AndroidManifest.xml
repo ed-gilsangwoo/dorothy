@@ -18,6 +18,11 @@
         android:theme="@style/AppTheme">
 
         <activity android:name=".Activity.MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
         </activity>
         <activity android:name=".Activity.SplashActivity">
 
@@ -29,13 +34,11 @@
         <activity android:name=".Activity.SignUpActivity"/>
         <activity android:name=".Activity.SearchDestActivity"/>
         <activity android:name=".Activity.ReportActivity">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
 
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
         </activity>
-        <activity android:name=".Activity.NavigationActivity"/>
+        <activity android:name=".Activity.NavigationActivity">
+
+        </activity>
     </application>
 
 </manifest>

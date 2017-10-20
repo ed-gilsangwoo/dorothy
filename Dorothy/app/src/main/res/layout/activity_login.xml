@@ -14,11 +14,11 @@
             android:layout_height="match_parent">
 
             <ImageView
-                android:id="@+id/img_background"
+                android:id="@+id/img_blur_login"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:scaleType="centerCrop"
-                android:src="@drawable/img_background" />
+                android:src="@drawable/img_blur_login" />
         </RelativeLayout>
 
 

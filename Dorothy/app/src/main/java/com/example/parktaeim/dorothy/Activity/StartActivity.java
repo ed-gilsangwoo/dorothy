@@ -13,6 +13,7 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
 import com.example.parktaeim.dorothy.R;
 
 
@@ -26,23 +27,27 @@ public class StartActivity extends AppCompatActivity {
     private ViewGroup backLayoout;
     private Button signupBtn;
     private TextView loginTextView;
+    private ImageView backgroundImg;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_start);
 
-        backLayoout = (ViewGroup) findViewById(R.id.backLayout);
-        backLayoout.post(new Runnable() {   // 백그라운드 이미지 블러 효과
-            @Override
-            public void run() {
-                Blurry.with(StartActivity.this)
-                        .radius(10)
-                        .sampling(4)
-                        .async()
-                        .onto(backLayoout);
-            }
-        });
+        backgroundImg = (ImageView) findViewById(R.id.img_background);
+        Glide.with(this).load(R.drawable.img_blur_login).into(backgroundImg);
+
+//        backLayoout = (ViewGroup) findViewById(R.id.backLayout);
+//        backLayoout.post(new Runnable() {   // 백그라운드 이미지 블러 효과
+//            @Override
+//            public void run() {
+//                Blurry.with(StartActivity.this)
+//                        .radius(10)
+//                        .sampling(4)
+//                        .async()
+//                        .onto(backLayoout);
+//            }
+//        });
 
 
         //회원가입 화면으로 이동

@@ -41,5 +41,7 @@ dependencies {
     compile 'com.squareup.okhttp3:okhttp:3.8.0'
     compile 'com.kofigyan.stateprogressbar:stateprogressbar:0.0.6'
     compile 'com.anton46:stepsview:0.0.2'
+    compile 'com.github.bumptech.glide:glide:4.0.0'
+
     compile files('libs/com.skp.Tmap_1.0.48.jar')
 }
