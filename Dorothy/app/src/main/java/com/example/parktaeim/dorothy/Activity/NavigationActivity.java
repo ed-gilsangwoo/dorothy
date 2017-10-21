@@ -5,6 +5,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.location.Location;
+import android.location.LocationManager;
 import android.os.Bundle;
 import android.speech.tts.TextToSpeech;
 import android.support.annotation.Nullable;
@@ -70,6 +71,8 @@ public class NavigationActivity extends AppCompatActivity implements TMapGpsMana
     private double realtimeLatitude;
     private double realtimeLongitude;
     private TextView distanceTextView;
+    private TextView nextDistanceTextView;
+    private int i=0;
 
     private TMapGpsManager tMapGps;
     final TMapData tmapData = new TMapData();
@@ -81,8 +84,9 @@ public class NavigationActivity extends AppCompatActivity implements TMapGpsMana
     private void setNavigation() {
 
         distanceTextView = (TextView) findViewById(R.id.distanceTextView);
+        nextDistanceTextView = (TextView) findViewById(R.id.nextDistanceTextView);
 
-        for(int i=0;i<geometryArrayList.size();){
+        for(i=0;i<geometryArrayList.size();){
             if(geometryArrayList.get(i).getGeometryType().equals("\"Point\"")){
                 if(propertiesArrayList.get(i).getPointType().equals("\"S\"")){
                     myTTS = new TextToSpeech(getApplicationContext(), new TextToSpeech.OnInitListener() {
@@ -105,16 +109,23 @@ public class NavigationActivity extends AppCompatActivity implements TMapGpsMana
                 String lineDesc = propertiesArrayList.get(i).getDescription();
                 lineDesc = lineDesc.substring(1,lineDesc.length()-1);
                 int index = lineDesc.indexOf(",");
-                String desc = lineDesc.substring(index+2);
-                Log.d("linedistance ===",desc);
+                String distance = lineDesc.substring(index+2);
 
-                distanceTextView.setText(desc);
+                String nextDistDesc = propertiesArrayList.get(i+2).getDescription();
+                nextDistDesc = nextDistDesc.substring(1,nextDistDesc.length()-1);
+                int index2 = nextDistDesc.indexOf(",");
+                String nextDistance = nextDistDesc.substring(index2 + 2);
+
+                distanceTextView.setText(distance);
+                Log.d("distance",distance);
+                nextDistanceTextView.setText(nextDistance);
+                if(geometryArrayList.get(i+1).getCoordinates().get(0).equals(realtimeLongitude) && geometryArrayList.get(i).getCoordinates().get(1).equals(realtimeLatitude)){
+                    i++;
+                }
                 break;
             }
 
-            if(geometryArrayList.get(i+1).getCoordinates().get(0).equals(realtimeLongitude) && geometryArrayList.get(i).getCoordinates().get(1).equals(realtimeLatitude)){
-                i++;
-            }
+
         }
 
     }
@@ -240,6 +251,7 @@ public class NavigationActivity extends AppCompatActivity implements TMapGpsMana
 
     @Override
     public void onLocationChange(Location location) {
+        Log.d("loacationChange===","lat");
         if (mTrackingMode) {
             tMapView.setLocationPoint(location.getLongitude(), location.getLatitude());
             tMapView.setCenterPoint(location.getLongitude(), location.getLatitude());
@@ -248,7 +260,38 @@ public class NavigationActivity extends AppCompatActivity implements TMapGpsMana
             realtimeLongitude = location.getLongitude();
             Log.d("naviActi current Loc =" + String.valueOf(location.getLatitude()), String.valueOf(location.getLongitude()));
 
+            getStraightDistance();
+
         }
+    }
+
+    // 직선 거리 계산
+    private void getStraightDistance() {
+        double startLon = realtimeLongitude;
+        Log.d("startLon",String.valueOf(startLon));
+        double startLat = realtimeLatitude;
+        Log.d("startLat",String.valueOf(startLat));
+
+        int idx = i;
+        Log.d("before i",String.valueOf(i));
+        Log.d("before idx",String.valueOf(idx));
+        if(idx!=0) {
+            if (idx % 2 == 1 || idx==1) {
+                idx = idx - 1;
+            }
+        }
+        Log.d("after idx",String.valueOf(idx));
+
+        double endLon = Double.valueOf(geometryArrayList.get(idx+2).getCoordinates().get(0).toString());
+        double endLat = Double.valueOf(geometryArrayList.get(idx+2).getCoordinates().get(1).toString());
+
+        float[] result = new float[1];
+        Location.distanceBetween(startLat,startLon,endLat,endLon,result);   // 거리 계산
+        Log.d("dist res",String.valueOf(result[0]));
+
+        distanceTextView = (TextView) findViewById(R.id.distanceTextView);
+        distanceTextView.setText(String.valueOf((int)result[0])+" m");   // setText
+
     }
 
 
@@ -443,12 +486,11 @@ public class NavigationActivity extends AppCompatActivity implements TMapGpsMana
         tMapView.setLanguage(TMapView.LANGUAGE_KOREAN);
 
         tMapGps = new TMapGpsManager(NavigationActivity.this);
-        tMapGps.setMinTime(10);
-        tMapGps.setMinDistance(5);
+        tMapGps.setMinTime(1000);
+        tMapGps.setMinDistance(1);
         tMapGps.setProvider(tMapGps.NETWORK_PROVIDER);  // 인터넷 이용 (실내일때 유용)
 //        tMapGps.setProvider(tMapGps.GPS_PROVIDER);    // 현위치 gps 이용
         tMapGps.OpenGps();
-
 
         mTrackingMode = false;
         tMapView.setTrackingMode(mTrackingMode);
@@ -474,8 +516,8 @@ public class NavigationActivity extends AppCompatActivity implements TMapGpsMana
             public void onClick(View view) {
                 beforeStartLayout.setVisibility(View.GONE);
                 startLayout.setVisibility(View.VISIBLE);
-                tMapView.removeTMapPath();
-                tMapView.setZoomLevel(15);
+//                tMapView.removeTMapPath();
+                tMapView.setZoomLevel(19);
                 tMapView.setTrackingMode(mTrackingMode);   //트래킹모드
                 tMapView.setSightVisible(true);
 
@@ -492,8 +534,5 @@ public class NavigationActivity extends AppCompatActivity implements TMapGpsMana
 
 
     }
-
-
-
 
 }
