@@ -100,11 +100,13 @@ public class NavigationActivity extends AppCompatActivity implements TMapGpsMana
                     i++;
 //                    break;
                 }else if(propertiesArrayList.get(i).getPointType().equals("\"N\"")){
-                    myTTS.speak(geometryArrayList.get(i).getDescription(),TextToSpeech.QUEUE_FLUSH,null,null);
+                    myTTS.speak(propertiesArrayList.get(i).getDescription(),TextToSpeech.QUEUE_FLUSH,null);
                     break;
                 }else if(propertiesArrayList.get(i).getPointType().equals("\"E\"")){
+                    myTTS.speak("목적지에 도착하였습니다.", TextToSpeech.QUEUE_FLUSH, null);
                     break;
                 }
+
             }else if(geometryArrayList.get(i).getGeometryType().equals("\"LineString\"")){
                 String lineDesc = propertiesArrayList.get(i).getDescription();
                 lineDesc = lineDesc.substring(1,lineDesc.length()-1);
@@ -424,7 +426,19 @@ public class NavigationActivity extends AppCompatActivity implements TMapGpsMana
 
         propertiesArrayList.add(new DestinationResponseItem(totalDistance, totalTime, totalFare, taxiFare, index, pointIndex, name, description, nextRoadName, turnType, pointType));
 
+        TextView totalTimeTextView = (TextView) findViewById(R.id.totalTimeTextView);
+        TextView totalDistTextView = (TextView) findViewById(R.id.totalDistTextView);
+        TextView fareTextView = (TextView) findViewById(R.id.fareTextView);
+        TextView taxiFareTextView = (TextView) findViewById(R.id.taxiFareTextView);
 
+        double totalKmDist = (double) totalDistance;
+        totalKmDist = totalDistance*0.001;
+        totalKmDist = Double.parseDouble(String.format("%.1f",totalKmDist));
+
+        totalTimeTextView.setText(String.valueOf(totalTime/60)+"분");
+        totalDistTextView.setText(String.valueOf(totalKmDist+"km"));
+        fareTextView.setText(String.valueOf(totalFare+"원"));
+        taxiFareTextView.setText(String.valueOf(taxiFare+"원"));
     }
 
     private void getPropertiesPointArray(ArrayList<DestinationResponseItem> arrayList, int i) {
@@ -508,6 +522,7 @@ public class NavigationActivity extends AppCompatActivity implements TMapGpsMana
         destNameTextView = (TextView) findViewById(R.id.destNameTextView);
         addressTextView = (TextView) findViewById(R.id.addressTextView);
 
+
         // Setting Layout
         startLayout.setVisibility(View.GONE);
 
@@ -531,7 +546,6 @@ public class NavigationActivity extends AppCompatActivity implements TMapGpsMana
         addressTextView.setText(intent.getStringExtra("address"));
         bottomDestNameTextView.setText(intent.getStringExtra("destination"));
         bottomAddressTextView.setText(intent.getStringExtra("address"));
-
 
     }
 
