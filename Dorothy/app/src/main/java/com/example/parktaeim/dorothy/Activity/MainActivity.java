@@ -1,6 +1,7 @@
 package com.example.parktaeim.dorothy.Activity;
 
 import android.Manifest;
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -56,6 +57,8 @@ public class MainActivity extends AppCompatActivity implements TMapGpsManager.on
     String gpsProvider = LocationManager.GPS_PROVIDER;
     String networkProvider = LocationManager.NETWORK_PROVIDER;
 
+    public static Activity mainActivity;
+
     private static final String[] INITIAL_PERMS = {
             Manifest.permission.ACCESS_FINE_LOCATION,
             Manifest.permission.READ_CONTACTS
@@ -98,6 +101,8 @@ public class MainActivity extends AppCompatActivity implements TMapGpsManager.on
             setMap();
 
         }
+
+        mainActivity = MainActivity.this;
     }
 
 

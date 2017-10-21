@@ -1,5 +1,6 @@
 package com.example.parktaeim.dorothy.Activity;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.location.LocationProvider;
 import android.os.Bundle;
@@ -56,10 +57,14 @@ public class SearchDestActivity extends AppCompatActivity {
     public Double lat = 0.0;
     public Double lon = 0.0;
 
+    public static Activity searchDestActivity;
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_searchdest);
+
+        searchDestActivity = SearchDestActivity.this;
 
         client = new OkHttpClient.Builder()
                 .connectTimeout(100, TimeUnit.SECONDS)
