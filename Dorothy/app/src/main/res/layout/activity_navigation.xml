@@ -39,8 +39,17 @@
                 android:textColor="#FFFFFF"
                 android:textSize="26dp" />
 
+            <ImageView
+                android:id="@+id/nextIcon"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:layout_centerVertical="true"
+                android:layout_marginRight="7dp"
+                android:layout_toLeftOf="@+id/nextDistanceTextView"
+                android:src="@drawable/icon_clock" />
+
             <TextView
-                android:id="@+id/totalDistanceTextView"
+                android:id="@+id/nextDistanceTextView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignBaseline="@+id/distanceTextView"
@@ -88,85 +97,98 @@
             </RelativeLayout>
 
             <RelativeLayout
-                android:layout_below="@+id/downArrowLayout"
                 android:layout_width="match_parent"
                 android:layout_height="140dp"
+                android:layout_below="@+id/downArrowLayout"
                 android:background="@color/colorPrimary">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:orientation="horizontal">
+
                     <LinearLayout
+                        android:id="@+id/naviCancelLayout"
                         android:layout_width="0dp"
                         android:layout_height="match_parent"
                         android:layout_weight="1"
-                        android:orientation="vertical"
-                        android:gravity="center">
+                        android:gravity="center"
+                        android:orientation="vertical">
+
                         <ImageView
                             android:layout_width="40dp"
                             android:layout_height="40dp"
-                            android:src="@drawable/icon_cancel"/>
+                            android:src="@drawable/icon_cancel" />
+
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            android:layout_marginTop="10dp"
                             android:text="경로취소"
-                            android:layout_marginTop="10dp"
-                            android:textColor="#FFFFFF"/>
+                            android:textColor="#FFFFFF" />
                     </LinearLayout>
 
                     <LinearLayout
+                        android:id="@+id/finishLayout"
                         android:layout_width="0dp"
                         android:layout_height="match_parent"
                         android:layout_weight="1"
-                        android:orientation="vertical"
-                        android:gravity="center">
+                        android:gravity="center"
+                        android:orientation="vertical">
+
                         <ImageView
                             android:layout_width="40dp"
                             android:layout_height="40dp"
-                            android:src="@drawable/icon_finish"/>
+                            android:src="@drawable/icon_finish" />
+
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            android:layout_marginTop="10dp"
                             android:text="종료"
-                            android:layout_marginTop="10dp"
-                            android:textColor="#FFFFFF"/>
+                            android:textColor="#FFFFFF" />
                     </LinearLayout>
 
                     <LinearLayout
+                        android:id="@+id/soundLayout"
                         android:layout_width="0dp"
                         android:layout_height="match_parent"
                         android:layout_weight="1"
-                        android:orientation="vertical"
-                        android:gravity="center">
+                        android:gravity="center"
+                        android:orientation="vertical">
+
                         <ImageView
                             android:layout_width="40dp"
                             android:layout_height="40dp"
-                            android:src="@drawable/icon_sound"/>
+                            android:src="@drawable/icon_sound" />
+
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            android:layout_marginTop="10dp"
                             android:text="소리"
-                            android:layout_marginTop="10dp"
-                            android:textColor="#FFFFFF"/>
+                            android:textColor="#FFFFFF" />
                     </LinearLayout>
 
                     <LinearLayout
+                        android:id="@+id/feedbackLayout"
                         android:layout_width="0dp"
                         android:layout_height="match_parent"
                         android:layout_weight="1"
-                        android:orientation="vertical"
-                        android:gravity="center">
+                        android:gravity="center"
+                        android:orientation="vertical">
+
                         <ImageView
                             android:layout_width="40dp"
                             android:layout_height="40dp"
-                            android:src="@drawable/icon_feedback"/>
+                            android:src="@drawable/icon_feedback" />
+
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="피드백"
                             android:layout_marginTop="10dp"
-                            android:textColor="#FFFFFF"/>
+                            android:text="피드백"
+                            android:textColor="#FFFFFF" />
                     </LinearLayout>
                 </LinearLayout>
             </RelativeLayout>
@@ -238,11 +260,18 @@
     <RelativeLayout
         android:id="@+id/beforeStartNaviLayout"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true">
 
         <RelativeLayout
+            android:id="@+id/destLayout"
             android:layout_width="match_parent"
             android:layout_height="120dp"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentTop="true"
             android:background="@color/colorPrimary">
 
             <RelativeLayout
@@ -286,8 +315,112 @@
                     android:layout_centerInParent="true"
                     android:src="@drawable/icon_play" />
             </RelativeLayout>
+
+
         </RelativeLayout>
 
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_below="@+id/destLayout"
+            android:background="#FFFFFF"
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:paddingRight="10dp"
+            android:paddingLeft="10dp">
+
+            <RelativeLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="center">
+
+                <TextView
+                    android:id="@+id/text0"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    android:text="소요시간 " />
+
+                <TextView
+                    android:id="@+id/totalTimeTextView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    android:layout_toRightOf="@id/text0"
+                    android:text="20분"
+                    android:textColor="#000000" />
+
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="center">
+
+                <TextView
+                    android:id="@+id/text1"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    android:text="거리 " />
+
+                <TextView
+                    android:id="@+id/totalDistTextView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    android:layout_toRightOf="@id/text1"
+                    android:text="19km"
+                    android:textColor="#000000" />
+
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="center">
+
+                    <TextView
+                        android:id="@+id/text2"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="요금 " />
+
+                    <TextView
+                        android:id="@+id/fareTextView"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_toRightOf="@id/text2"
+                        android:text="0원"
+                        android:textColor="#000000" />
+
+            </RelativeLayout>
+
+
+            <RelativeLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="center">
+
+                <TextView
+                    android:id="@+id/text3"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="택시 " />
+                <TextView
+                    android:id="@+id/taxiFareTextView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_toRightOf="@id/text3"
+                    android:text="3300원"
+                    android:textColor="#000000" />
+
+            </RelativeLayout>
+        </LinearLayout>
 
     </RelativeLayout>
 

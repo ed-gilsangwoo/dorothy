@@ -1,14 +1,23 @@
 package com.example.parktaeim.dorothy.Activity;
 
+import android.app.Activity;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.location.Location;
+import android.location.LocationManager;
 import android.os.Bundle;
+import android.speech.tts.TextToSpeech;
 import android.support.annotation.Nullable;
+import android.support.v4.app.ActivityCompat;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.parktaeim.dorothy.APIUrl;
 import com.example.parktaeim.dorothy.Model.DestinationResponseItem;
@@ -27,7 +36,9 @@ import org.json.JSONObject;
 import org.w3c.dom.Text;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
 import okhttp3.OkHttpClient;
@@ -41,7 +52,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
  * Created by parktaeim on 2017. 10. 12..
  */
 
-public class NavigationActivity extends AppCompatActivity implements TMapGpsManager.onLocationChangedCallback{
+public class NavigationActivity extends AppCompatActivity implements TMapGpsManager.onLocationChangedCallback {
 
     private RelativeLayout beforeStartLayout;
     private RelativeLayout startLayout;
@@ -56,7 +67,12 @@ public class NavigationActivity extends AppCompatActivity implements TMapGpsMana
     private RelativeLayout bottomUpLayout;
     private RelativeLayout downArrowLayout;
     private boolean mTrackingMode = false;
-
+    private TextToSpeech myTTS;
+    private double realtimeLatitude;
+    private double realtimeLongitude;
+    private TextView distanceTextView;
+    private TextView nextDistanceTextView;
+    private int i=0;
 
     private TMapGpsManager tMapGps;
     final TMapData tmapData = new TMapData();
@@ -65,6 +81,57 @@ public class NavigationActivity extends AppCompatActivity implements TMapGpsMana
     ArrayList<DestinationResponseItem> geometryArrayList;
     ArrayList<DestinationResponseItem> propertiesArrayList;
 
+    private void setNavigation() {
+
+        distanceTextView = (TextView) findViewById(R.id.distanceTextView);
+        nextDistanceTextView = (TextView) findViewById(R.id.nextDistanceTextView);
+
+        for(i=0;i<geometryArrayList.size();){
+            if(geometryArrayList.get(i).getGeometryType().equals("\"Point\"")){
+                if(propertiesArrayList.get(i).getPointType().equals("\"S\"")){
+                    myTTS = new TextToSpeech(getApplicationContext(), new TextToSpeech.OnInitListener() {
+                        @Override
+                        public void onInit(int i) {
+                            myTTS.setLanguage(Locale.KOREAN);
+                            myTTS.speak("경로 안내를 시작합니다. "+propertiesArrayList.get(i).getDescription().toString()+"하세요.", TextToSpeech.QUEUE_FLUSH, null);
+
+                        }
+                    });
+                    i++;
+//                    break;
+                }else if(propertiesArrayList.get(i).getPointType().equals("\"N\"")){
+                    myTTS.speak(propertiesArrayList.get(i).getDescription(),TextToSpeech.QUEUE_FLUSH,null);
+                    break;
+                }else if(propertiesArrayList.get(i).getPointType().equals("\"E\"")){
+                    myTTS.speak("목적지에 도착하였습니다.", TextToSpeech.QUEUE_FLUSH, null);
+                    break;
+                }
+
+            }else if(geometryArrayList.get(i).getGeometryType().equals("\"LineString\"")){
+                String lineDesc = propertiesArrayList.get(i).getDescription();
+                lineDesc = lineDesc.substring(1,lineDesc.length()-1);
+                int index = lineDesc.indexOf(",");
+                String distance = lineDesc.substring(index+2);
+
+                String nextDistDesc = propertiesArrayList.get(i+2).getDescription();
+                nextDistDesc = nextDistDesc.substring(1,nextDistDesc.length()-1);
+                int index2 = nextDistDesc.indexOf(",");
+                String nextDistance = nextDistDesc.substring(index2 + 2);
+
+                distanceTextView.setText(distance);
+                Log.d("distance",distance);
+                nextDistanceTextView.setText(nextDistance);
+                if(geometryArrayList.get(i+1).getCoordinates().get(0).equals(realtimeLongitude) && geometryArrayList.get(i).getCoordinates().get(1).equals(realtimeLatitude)){
+                    i++;
+                }
+                break;
+            }
+
+
+        }
+
+    }
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -72,15 +139,21 @@ public class NavigationActivity extends AppCompatActivity implements TMapGpsMana
 
         setLayout();
         setMap();
-        setNavigation();
+        getNaviData();
         setBottomLayout();
 
     }
 
+    // 경로취소 종료 소리 피드백 하는 레이아웃 올렸다 내렸다
     private void setBottomLayout() {
         bottomDownLayout = (RelativeLayout) findViewById(R.id.bottomDownLayout);
         bottomUpLayout = (RelativeLayout) findViewById(R.id.bottomUpLayout);
         downArrowLayout = (RelativeLayout) findViewById(R.id.downArrowLayout);
+
+        LinearLayout naviCancelLayout = (LinearLayout) findViewById(R.id.naviCancelLayout);
+        LinearLayout finishLayout = (LinearLayout) findViewById(R.id.finishLayout);
+        LinearLayout soundLayout = (LinearLayout) findViewById(R.id.soundLayout);
+        LinearLayout feedbackLayout = (LinearLayout) findViewById(R.id.feedbackLayout);
 
         bottomUpLayout.setVisibility(View.GONE);
         bottomDownLayout.setVisibility(View.VISIBLE);
@@ -100,29 +173,160 @@ public class NavigationActivity extends AppCompatActivity implements TMapGpsMana
                 bottomDownLayout.setVisibility(View.VISIBLE);
             }
         });
+
+        //경로취소
+        naviCancelLayout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                new AlertDialog.Builder(NavigationActivity.this)
+                        .setTitle("경로 취소").setMessage("메인화면으로 이동하시겠습니까? ")
+                        .setPositiveButton("메인화면으로", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int whichButton) {
+
+                                SearchDestActivity searchDestActivity = (SearchDestActivity) SearchDestActivity.searchDestActivity;
+                                searchDestActivity.finish();       // SearchDestActivity finish
+                                finish();   //NavigationActivity finish
+
+                                Intent intent = new Intent(NavigationActivity.this, MainActivity.class);
+                                startActivity(intent);
+                            }
+                        })
+                        .setNegativeButton("취소", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int whichButton) {
+
+                            }
+                        })
+                        .show();
+
+            }
+
+        });
+
+        //종료
+        finishLayout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Toast.makeText(NavigationActivity.this,"onclick",Toast.LENGTH_SHORT).show();
+                new AlertDialog.Builder(NavigationActivity.this)
+                        .setTitle("종료").setMessage("도로시를 종료하시겠습니까?")
+                        .setPositiveButton("종료하기", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int whichButton) {
+                                MainActivity mainActivity = (MainActivity) MainActivity.mainActivity;
+                                mainActivity.finish();    //MainActivity finish
+
+                                SearchDestActivity searchDestActivity = (SearchDestActivity) SearchDestActivity.searchDestActivity;
+                                searchDestActivity.finish();       //SearchDestActivity finish
+
+                                finish();
+
+                            }
+                        })
+                        .setNegativeButton("취소", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int whichButton) {
+
+                            }
+                        })
+                        .show();
+
+            }
+        });
+
+        //소리
+        soundLayout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+            }
+        });
+
+        //피드백
+        feedbackLayout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+            }
+        });
+
+
     }
+
 
     @Override
     public void onLocationChange(Location location) {
-        if(mTrackingMode) {
+        Log.d("loacationChange===","lat");
+        if (mTrackingMode) {
             tMapView.setLocationPoint(location.getLongitude(), location.getLatitude());
             tMapView.setCenterPoint(location.getLongitude(), location.getLatitude());
 
-            Log.d("naviActi current Loc ="+String.valueOf(location.getLatitude()), String.valueOf(location.getLongitude()));
+            realtimeLatitude = location.getLatitude();
+            realtimeLongitude = location.getLongitude();
+            Log.d("naviActi current Loc =" + String.valueOf(location.getLatitude()), String.valueOf(location.getLongitude()));
+
+            getStraightDistance();
 
         }
     }
 
-    private void setNavigation() {
+    // 직선 거리 계산
+    private void getStraightDistance() {
+        double startLon = realtimeLongitude;
+        Log.d("startLon",String.valueOf(startLon));
+        double startLat = realtimeLatitude;
+        Log.d("startLat",String.valueOf(startLat));
+
+        int idx = i;
+        Log.d("before i",String.valueOf(i));
+        Log.d("before idx",String.valueOf(idx));
+        if(idx!=0) {
+            if (idx % 2 == 1 || idx==1) {
+                idx = idx - 1;
+            }
+        }
+        Log.d("after idx",String.valueOf(idx));
+
+        double endLon = Double.valueOf(geometryArrayList.get(idx+2).getCoordinates().get(0).toString());
+        double endLat = Double.valueOf(geometryArrayList.get(idx+2).getCoordinates().get(1).toString());
+
+        float[] result = new float[1];
+        Location.distanceBetween(startLat,startLon,endLat,endLon,result);   // 거리 계산
+        Log.d("dist res",String.valueOf(result[0]));
+
+        distanceTextView = (TextView) findViewById(R.id.distanceTextView);
+        distanceTextView.setText(String.valueOf((int)result[0])+" m");   // setText
+
+    }
+
+
+    private void getNaviData() {
         Intent intent = getIntent();
-        double currentLatitude = intent.getDoubleExtra("currentLatitude", -1);
+        double currentLatitude = intent.getDoubleExtra("currentLatitude", -1);     // 현재 위치 받아옴
         double currentLongitude = intent.getDoubleExtra("currentLongitude", -1);
         Log.d("setNavi location======" + String.valueOf(currentLatitude), String.valueOf(currentLongitude));
 
 
         Intent getNoor = getIntent();
-        double noorLat = getNoor.getDoubleExtra("noorLat", -1);
+        double noorLat = getNoor.getDoubleExtra("noorLat", -1);      //도착지 경도,위도
         double noorLon = getNoor.getDoubleExtra("noorLon", -1);
+
+
+        // 경로 그리기
+        final TMapPoint startPoint = new TMapPoint(currentLatitude, currentLongitude);   // 현재 위치
+        final TMapPoint destPoint = new TMapPoint(noorLat, noorLon);  // 도착 위치
+
+        tmapData.findPathDataWithType(TMapData.TMapPathType.PEDESTRIAN_PATH, startPoint, destPoint, new TMapData.FindPathDataListenerCallback() {
+            @Override
+            public void onFindPathData(TMapPolyLine tMapPolyLine) {
+                Log.d("path start======" + String.valueOf(startPoint.getLatitude()), String.valueOf(startPoint.getLongitude()));
+                Log.d("path dest======" + String.valueOf(destPoint.getLatitude()), String.valueOf(destPoint.getLongitude()));
+                tMapView.setLocationPoint(startPoint.getLongitude(), startPoint.getLatitude());
+                tMapView.addTMapPath(tMapPolyLine);
+                mTrackingMode = true;
+                Log.d("path poly", "finish=========");
+
+            }
+        });
+
+
         HashMap<String, Object> fieldMap = new HashMap<>();
         fieldMap.put("startX", currentLongitude);
         fieldMap.put("startY", currentLatitude);
@@ -130,25 +334,6 @@ public class NavigationActivity extends AppCompatActivity implements TMapGpsMana
         fieldMap.put("endY", noorLat);
         fieldMap.put("reqCoordType", "WGS84GEO");
         fieldMap.put("resCoordType", "WGS84GEO");
-
-
-        // 경로 그리기
-        final TMapPoint startPoint = new TMapPoint(currentLatitude,currentLongitude);   // 현재 위치
-        final TMapPoint destPoint = new TMapPoint(noorLat,noorLon);  // 도착 위치
-
-        tmapData.findPathDataWithType(TMapData.TMapPathType.PEDESTRIAN_PATH, startPoint, destPoint, new TMapData.FindPathDataListenerCallback() {
-            @Override
-            public void onFindPathData(TMapPolyLine tMapPolyLine) {
-                Log.d("path start======"+String.valueOf(startPoint.getLatitude()),String.valueOf(startPoint.getLongitude()));
-                Log.d("path dest======"+String.valueOf(destPoint.getLatitude()),String.valueOf(destPoint.getLongitude()));
-                tMapView.setLocationPoint(startPoint.getLongitude(),startPoint.getLatitude());
-                tMapView.addTMapPath(tMapPolyLine);
-                mTrackingMode = true;
-                Log.d("path poly","finish=========");
-
-            }
-        });
-
 
         Log.d("startX : " + String.valueOf(currentLatitude), "startY : " + String.valueOf(currentLongitude));
         Log.d("endX : " + String.valueOf(noorLat), "endY :" + String.valueOf(noorLon));
@@ -194,26 +379,26 @@ public class NavigationActivity extends AppCompatActivity implements TMapGpsMana
 
                 getGeometryArray(arrayList);
 
-                Log.d("equals",geometryArrayList.get(0).getGeometryType());
-                Log.d("equals",geometryArrayList.get(1).getGeometryType());
-                Log.d("equals",geometryArrayList.get(2).getGeometryType());
+                Log.d("equals", geometryArrayList.get(0).getGeometryType());
+                Log.d("equals", geometryArrayList.get(1).getGeometryType());
+                Log.d("equals", geometryArrayList.get(2).getGeometryType());
 
                 for (int i = 0; i < geometryArrayList.size(); i++) {
-                        if (geometryArrayList.get(i).getGeometryType().equals("\"Point\"")) {
-                            if(i==0){
-                                getPropertiesStartArray(arrayList);
-                            }else {
-                                getPropertiesPointArray(arrayList,i);
-                            }
-                        } else if (geometryArrayList.get(i).getGeometryType().equals("\"LineString\"")) {
-                            getPropertiesLineStringArray(arrayList,i);
+                    if (geometryArrayList.get(i).getGeometryType().equals("\"Point\"")) {
+                        if (i == 0) {
+                            getPropertiesStartArray(arrayList);
+                        } else {
+                            getPropertiesPointArray(arrayList, i);
                         }
+                    } else if (geometryArrayList.get(i).getGeometryType().equals("\"LineString\"")) {
+                        getPropertiesLineStringArray(arrayList, i);
+                    }
 
                 }
-    Log.d("proper check for after",propertiesArrayList.get(0).getDescription());
-                for(int j=0;j<propertiesArrayList.size();j++){
-                    Log.d("propertiesArraySize",String.valueOf(propertiesArrayList.size()));
-                    System.out.println("aaaaa==="+propertiesArrayList.get(j).getDescription());
+                Log.d("proper check for after", propertiesArrayList.get(0).getDescription());
+                for (int j = 0; j < propertiesArrayList.size(); j++) {
+                    Log.d("propertiesArraySize", String.valueOf(propertiesArrayList.size()));
+                    System.out.println("aaaaa===" + propertiesArrayList.get(j).getDescription());
                 }
             }
 
@@ -234,49 +419,61 @@ public class NavigationActivity extends AppCompatActivity implements TMapGpsMana
         int pointIndex = Integer.valueOf(jsonObject.getAsJsonPrimitive("pointIndex").toString());
         String name = jsonObject.getAsJsonPrimitive("name").toString();
         String description = jsonObject.getAsJsonPrimitive("description").toString();
-        Log.d("properStartDesc",description);
+        Log.d("properStartDesc", description);
         String nextRoadName = jsonObject.getAsJsonPrimitive("nextRoadName").toString();
         int turnType = Integer.valueOf(jsonObject.getAsJsonPrimitive("turnType").toString());
         String pointType = jsonObject.getAsJsonPrimitive("pointType").toString();
 
-        propertiesArrayList.add(new DestinationResponseItem(totalDistance,totalTime,totalFare,taxiFare,index,pointIndex,name,description,nextRoadName,turnType,pointType));
+        propertiesArrayList.add(new DestinationResponseItem(totalDistance, totalTime, totalFare, taxiFare, index, pointIndex, name, description, nextRoadName, turnType, pointType));
 
+        TextView totalTimeTextView = (TextView) findViewById(R.id.totalTimeTextView);
+        TextView totalDistTextView = (TextView) findViewById(R.id.totalDistTextView);
+        TextView fareTextView = (TextView) findViewById(R.id.fareTextView);
+        TextView taxiFareTextView = (TextView) findViewById(R.id.taxiFareTextView);
 
+        double totalKmDist = (double) totalDistance;
+        totalKmDist = totalDistance*0.001;
+        totalKmDist = Double.parseDouble(String.format("%.1f",totalKmDist));
+
+        totalTimeTextView.setText(String.valueOf(totalTime/60)+"분");
+        totalDistTextView.setText(String.valueOf(totalKmDist+"km"));
+        fareTextView.setText(String.valueOf(totalFare+"원"));
+        taxiFareTextView.setText(String.valueOf(taxiFare+"원"));
     }
 
-    private void getPropertiesPointArray(ArrayList<DestinationResponseItem> arrayList,int i) {
-            try{
-                JsonObject jsonObject = arrayList.get(i).getProperties();
-                int index = Integer.valueOf(jsonObject.getAsJsonPrimitive("index").toString());
-                int pointIndex = Integer.valueOf(jsonObject.getAsJsonPrimitive("pointIndex").toString());
-                String name = jsonObject.getAsJsonPrimitive("name").toString();
-                String description = jsonObject.getAsJsonPrimitive("description").toString();
-                String nextRoadname = jsonObject.getAsJsonPrimitive("nextRoadName").toString();
-                int turnType = Integer.valueOf(jsonObject.getAsJsonPrimitive("turnType").toString());
-                String pointType = jsonObject.getAsJsonPrimitive("pointType").toString();
+    private void getPropertiesPointArray(ArrayList<DestinationResponseItem> arrayList, int i) {
+        try {
+            JsonObject jsonObject = arrayList.get(i).getProperties();
+            int index = Integer.valueOf(jsonObject.getAsJsonPrimitive("index").toString());
+            int pointIndex = Integer.valueOf(jsonObject.getAsJsonPrimitive("pointIndex").toString());
+            String name = jsonObject.getAsJsonPrimitive("name").toString();
+            String description = jsonObject.getAsJsonPrimitive("description").toString();
+            String nextRoadname = jsonObject.getAsJsonPrimitive("nextRoadName").toString();
+            int turnType = Integer.valueOf(jsonObject.getAsJsonPrimitive("turnType").toString());
+            String pointType = jsonObject.getAsJsonPrimitive("pointType").toString();
 
-                propertiesArrayList.add(new DestinationResponseItem(index, pointIndex, name, description, nextRoadname, turnType, pointType));
-            }catch (Exception e){
-                e.printStackTrace();
-            }
+            propertiesArrayList.add(new DestinationResponseItem(index, pointIndex, name, description, nextRoadname, turnType, pointType));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
-    private void getPropertiesLineStringArray(ArrayList<DestinationResponseItem> arrayList,int i) {
-            try{
-                JsonObject jsonObject = arrayList.get(i).getProperties();
-                int index = Integer.valueOf(jsonObject.getAsJsonPrimitive("index").toString());
-                int lineIndex = Integer.valueOf(jsonObject.getAsJsonPrimitive("lineIndex").toString());
-                String name = jsonObject.getAsJsonPrimitive("name").toString();
-                String description = jsonObject.getAsJsonPrimitive("description").toString();
-                int distance = Integer.valueOf(jsonObject.getAsJsonPrimitive("distance").toString());
-                int time = Integer.valueOf(jsonObject.getAsJsonPrimitive("time").toString());
-                int roadType = Integer.valueOf(jsonObject.getAsJsonPrimitive("roadType").toString());
-                int facilityType = Integer.valueOf(jsonObject.getAsJsonPrimitive("facilityType").toString());
+    private void getPropertiesLineStringArray(ArrayList<DestinationResponseItem> arrayList, int i) {
+        try {
+            JsonObject jsonObject = arrayList.get(i).getProperties();
+            int index = Integer.valueOf(jsonObject.getAsJsonPrimitive("index").toString());
+            int lineIndex = Integer.valueOf(jsonObject.getAsJsonPrimitive("lineIndex").toString());
+            String name = jsonObject.getAsJsonPrimitive("name").toString();
+            String description = jsonObject.getAsJsonPrimitive("description").toString();
+            int distance = Integer.valueOf(jsonObject.getAsJsonPrimitive("distance").toString());
+            int time = Integer.valueOf(jsonObject.getAsJsonPrimitive("time").toString());
+            int roadType = Integer.valueOf(jsonObject.getAsJsonPrimitive("roadType").toString());
+            int facilityType = Integer.valueOf(jsonObject.getAsJsonPrimitive("facilityType").toString());
 
-                propertiesArrayList.add(new DestinationResponseItem(index,lineIndex,name,description,distance,time,roadType,facilityType));
-            }catch (Exception e){
-                e.printStackTrace();
-            }
+            propertiesArrayList.add(new DestinationResponseItem(index, lineIndex, name, description, distance, time, roadType, facilityType));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
 
@@ -303,19 +500,16 @@ public class NavigationActivity extends AppCompatActivity implements TMapGpsMana
         tMapView.setLanguage(TMapView.LANGUAGE_KOREAN);
 
         tMapGps = new TMapGpsManager(NavigationActivity.this);
-        tMapGps.setMinTime(100);
-        tMapGps.setMinDistance(5);
+        tMapGps.setMinTime(1000);
+        tMapGps.setMinDistance(1);
         tMapGps.setProvider(tMapGps.NETWORK_PROVIDER);  // 인터넷 이용 (실내일때 유용)
 //        tMapGps.setProvider(tMapGps.GPS_PROVIDER);    // 현위치 gps 이용
         tMapGps.OpenGps();
 
         mTrackingMode = false;
-        tMapView.setTrackingMode(false);
-//        final TMapPoint startPoint = tMapView.getLocationPoint();
-
+        tMapView.setTrackingMode(mTrackingMode);
 
     }
-
 
 
     private void setLayout() {
@@ -328,20 +522,21 @@ public class NavigationActivity extends AppCompatActivity implements TMapGpsMana
         destNameTextView = (TextView) findViewById(R.id.destNameTextView);
         addressTextView = (TextView) findViewById(R.id.addressTextView);
 
+
         // Setting Layout
         startLayout.setVisibility(View.GONE);
-//        setBeforeStartNaviMap();
 
         startButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 beforeStartLayout.setVisibility(View.GONE);
                 startLayout.setVisibility(View.VISIBLE);
-                tMapView.removeTMapPath();
-                tMapView.setZoomLevel(15);
+//                tMapView.removeTMapPath();
+                tMapView.setZoomLevel(19);
                 tMapView.setTrackingMode(mTrackingMode);   //트래킹모드
                 tMapView.setSightVisible(true);
-//                setStartNaviMap();
+
+                setNavigation();
             }
         });
 
@@ -352,25 +547,6 @@ public class NavigationActivity extends AppCompatActivity implements TMapGpsMana
         bottomDestNameTextView.setText(intent.getStringExtra("destination"));
         bottomAddressTextView.setText(intent.getStringExtra("address"));
 
-
-
     }
 
-//    private void setBeforeStartNaviMap() {
-//        RelativeLayout relativeLayout = (RelativeLayout) findViewById(R.id.map_view);
-//        tMapView = new TMapView(this);
-//        relativeLayout.addView(tMapView);
-//        tMapView.setSKPMapApiKey(getString(R.string.tmap_app_key));
-//
-//        tMapView.setCompassMode(true);    // 현재 보는 방향
-//        tMapView.setIconVisibility(true);   // 아이콘 표시
-//        tMapView.setZoomLevel(15);   // 줌레벨
-//        tMapView.setMapType(TMapView.MAPTYPE_STANDARD);
-//        tMapView.setLanguage(TMapView.LANGUAGE_KOREAN);
-//
-//
-//    }
-//
-//    private void setStartNaviMap() {
-//    }
 }
