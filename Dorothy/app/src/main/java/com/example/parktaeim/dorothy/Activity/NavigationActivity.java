@@ -1,18 +1,13 @@
 package com.example.parktaeim.dorothy.Activity;
 
-import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.graphics.PointF;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.location.Location;
-import android.location.LocationManager;
-import android.media.Image;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.speech.tts.TextToSpeech;
 import android.support.annotation.Nullable;
-import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -28,7 +23,6 @@ import com.example.parktaeim.dorothy.APIUrl;
 import com.example.parktaeim.dorothy.Model.DestinationResponseItem;
 import com.example.parktaeim.dorothy.R;
 import com.example.parktaeim.dorothy.RestAPI;
-import com.example.parktaeim.dorothy.TTSApi;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -41,13 +35,12 @@ import com.skp.Tmap.TMapPoint;
 import com.skp.Tmap.TMapPolyLine;
 import com.skp.Tmap.TMapView;
 
-import org.json.JSONObject;
-import org.w3c.dom.Text;
-
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Locale;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
 
 import cn.pedant.SweetAlert.SweetAlertDialog;
@@ -244,8 +237,10 @@ public class NavigationActivity extends AppCompatActivity implements TMapGpsMana
         initStrengthBar();
         initStateButtons();
         initSubmitButton();
-
+        initializeMarkers();
+        markerUpdate();
     }
+
 
     // 경로취소 종료 소리 피드백 하는 레이아웃 올렸다 내렸다
     private void setBottomLayout() {
@@ -262,6 +257,7 @@ public class NavigationActivity extends AppCompatActivity implements TMapGpsMana
         bottomDownLayout.setVisibility(View.VISIBLE);
 
         bottomDownLayout.setOnClickListener(new View.OnClickListener() {
+
             @Override
             public void onClick(View view) {
                 bottomUpLayout.setVisibility(View.VISIBLE);
@@ -715,7 +711,6 @@ public class NavigationActivity extends AppCompatActivity implements TMapGpsMana
 //    }
 
 
-
     // 도로 신고
     private void initSubmitButton() {
         client = new OkHttpClient.Builder()
@@ -777,7 +772,7 @@ public class NavigationActivity extends AppCompatActivity implements TMapGpsMana
             public void onResponse(Call<Void> call, Response<Void> response) {
                 Toast.makeText(getApplicationContext(), "startResponse", Toast.LENGTH_SHORT).show();
 
-                Log.d("Navigation","onResponse: succeed" + response.code());
+                Log.d("Navigation", "onResponse: succeed" + response.code());
                 if (response.code() == 200) {
                     new SweetAlertDialog(NavigationActivity.this, SweetAlertDialog.SUCCESS_TYPE)
                             .setContentText("신고가 접수되었습니다. 감사합니다.")
@@ -891,4 +886,77 @@ public class NavigationActivity extends AppCompatActivity implements TMapGpsMana
         }
     }
 
+    private void initializeMarkers() {
+        new Timer().scheduleAtFixedRate(new TimerTask() {
+            @Override
+            public void run() {
+
+                final Bitmap mountain_damage = BitmapFactory.decodeResource(getResources(), R.drawable.ic_location_mountain_damage_48dp_iloveimg_resized);
+//        mountain_damage.setWidth(mountain_damage.getWidth() / 10);
+//        mountain_damage.setHeight(mountain_damage.getHeight() / 10);
+
+                final Bitmap road_damage = BitmapFactory.decodeResource(getResources(), R.drawable.ic_location_road_damage_48dp_iloveimg_resized);
+//        road_damage.setWidth(road_damage.getWidth() / 10);
+//        road_damage.setHeight(road_damage.getHeight() / 10);
+
+                final Bitmap water_damage = BitmapFactory.decodeResource(getResources(), R.drawable.ic_location_water_damage_48dp_iloveimg_resized);
+//        water_damage.setWidth(water_damage.getWidth() / 10);
+//        water_damage.setHeight(water_damage.getHeight() / 10);
+
+                OkHttpClient client = new OkHttpClient.Builder()
+                        .connectTimeout(100, TimeUnit.SECONDS)
+                        .readTimeout(100, TimeUnit.SECONDS).build();
+
+                Retrofit builder = new Retrofit.Builder()
+                        .baseUrl(APIUrl.TMAP_BASE_URL).client(client)
+                        .addConverterFactory(GsonConverterFactory.create())
+                        .build();
+                RestAPI restAPI = builder.create(RestAPI.class);
+
+                Call<JsonArray> call = restAPI.getReportList();
+
+                call.enqueue(new Callback<JsonArray>() {
+                    @Override
+                    public void onResponse(Call<JsonArray> call, Response<JsonArray> response) {
+                        Log.d(TAG, "onResponse: " + response.code());
+                        
+                        if (response.code() == 200) {
+                            tMapView.removeAllMarkerItem();
+                            JsonArray res = response.body();
+                            Iterator<JsonElement> iterator = res.iterator();
+                            while (iterator.hasNext()) {
+                                JsonObject obj = iterator.next().getAsJsonObject();
+                                Log.d(TAG, "onResponse: " + obj.toString());
+                                int type = obj.get("kind").getAsInt();
+                                TMapMarkerItem markerItem = new TMapMarkerItem();
+                                TMapPoint markerPoint = new TMapPoint(obj.get("lat").getAsDouble(), obj.get("lng").getAsDouble());
+                                markerItem.setTMapPoint(markerPoint);
+                                markerItem.setVisible(TMapMarkerItem.VISIBLE);
+                                if (type == 1) markerItem.setIcon(road_damage);
+                                if (type == 2) markerItem.setIcon(water_damage);
+                                if (type == 3) markerItem.setIcon(mountain_damage);
+                                tMapView.addMarkerItem("marker", markerItem);
+                            }
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<JsonArray> call, Throwable t) {
+
+                    }
+                });
+                Log.i("tag", "A Kiss every 5 seconds");
+            }
+        }, 0, 5000);
+
+    }
+
+    private void markerUpdate() {
+//        new Timer().scheduleAtFixedRate(new TimerTask() {
+//            @Override
+//            public void run() {
+//                Log.i("tag", "A Kiss every 5 seconds");
+//            }
+//        }, 0, 5000);
+    }
 }
