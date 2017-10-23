@@ -1,5 +1,7 @@
 package com.example.parktaeim.dorothy.Activity;
 
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.ColorInt;
@@ -20,6 +22,7 @@ import com.kofigyan.stateprogressbar.StateProgressBar;
 import java.util.HashMap;
 import java.util.concurrent.TimeUnit;
 
+import cn.pedant.SweetAlert.SweetAlertDialog;
 import okhttp3.OkHttpClient;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -32,6 +35,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
  */
 
 public class ReportActivity extends AppCompatActivity {
+    private static final String TAG = "ReportActivity";
 
     private StateProgressBar strengthBar;
 
@@ -45,6 +49,12 @@ public class ReportActivity extends AppCompatActivity {
 
     private double lon = 0;
     private double lat = 0;
+
+    private Button submitButton;
+
+    private Retrofit builder;
+    private OkHttpClient client;
+    private RestAPI restAPI;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -60,34 +70,104 @@ public class ReportActivity extends AppCompatActivity {
     }
 
     private void initSubmitButton() {
-        OkHttpClient client = new OkHttpClient.Builder()
+        client = new OkHttpClient.Builder()
                 .connectTimeout(100, TimeUnit.SECONDS)
                 .readTimeout(100, TimeUnit.SECONDS).build();
 
-        Retrofit builder = new Retrofit.Builder()
+        builder = new Retrofit.Builder()
                 .baseUrl(APIUrl.API_BASE_URL).client(client)
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
 
-        RestAPI restAPI = builder.create(RestAPI.class);
+        restAPI = builder.create(RestAPI.class);
 
+        submitButton = (Button) findViewById(R.id.btn_report_submit);
+
+        submitButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                final SweetAlertDialog dialog = new SweetAlertDialog(ReportActivity.this, SweetAlertDialog.WARNING_TYPE)
+                        .setTitleText("주의!")
+                        .setContentText("허위신고시 받는 불이익은 책임지지 않습니다.\n신고하시겠어요?")
+                        .setConfirmText("예")
+                        .setCancelText("아니오");
+
+                dialog.setCancelClickListener(new SweetAlertDialog.OnSweetClickListener() {
+                    @Override
+                    public void onClick(SweetAlertDialog sweetAlertDialog) {
+                        sweetAlertDialog.cancel();
+                    }
+                });
+
+                dialog.setConfirmClickListener(new SweetAlertDialog.OnSweetClickListener() {
+                    @Override
+                    public void onClick(SweetAlertDialog sweetAlertDialog) {
+                        report();
+                        sweetAlertDialog.cancel();
+                    }
+                });
+
+                dialog.show();
+            }
+        });
+    }
+
+    private void report() {
         HashMap<String, Object> fieldMap = new HashMap<>();
+
+        fieldMap.put("id", "test01");
         fieldMap.put("lat", lat);
         fieldMap.put("lng", lon);
         fieldMap.put("kind", state);
         fieldMap.put("scope", strength);
 
         Call<Void> call = restAPI.report(fieldMap);
-
+        Toast.makeText(getApplicationContext(), "CALLED", Toast.LENGTH_SHORT).show();
         call.enqueue(new Callback<Void>() {
             @Override
             public void onResponse(Call<Void> call, Response<Void> response) {
 
+                Log.d(TAG, "onResponse: succeed" + response.code());
+                if (response.code() == 200) {
+                    new SweetAlertDialog(ReportActivity.this, SweetAlertDialog.SUCCESS_TYPE)
+                            .setContentText("신고가 접수되었습니다. 감사합니다.")
+                            .setConfirmText("알겠습니다.").setConfirmClickListener(new SweetAlertDialog.OnSweetClickListener() {
+                        @Override
+                        public void onClick(SweetAlertDialog sweetAlertDialog) {
+                            sweetAlertDialog.cancel();
+                            finish();
+                        }
+                    })
+                            .show();
+                }
+                if (response.code() == 400) {
+                    new SweetAlertDialog(ReportActivity.this, SweetAlertDialog.ERROR_TYPE)
+                            .setContentText("잘못된 요청입니다.")
+                            .setConfirmText("알겠습니다.").setConfirmClickListener(new SweetAlertDialog.OnSweetClickListener() {
+                        @Override
+                        public void onClick(SweetAlertDialog sweetAlertDialog) {
+                            sweetAlertDialog.cancel();
+                        }
+                    })
+                            .show();
+                }
+                if (response.code() == 500) {
+                    new SweetAlertDialog(ReportActivity.this, SweetAlertDialog.ERROR_TYPE)
+                            .setContentText("서버 오류입니다.")
+                            .setConfirmText("알겠습니다.").setConfirmClickListener(new SweetAlertDialog.OnSweetClickListener() {
+                        @Override
+                        public void onClick(SweetAlertDialog sweetAlertDialog) {
+                            sweetAlertDialog.cancel();
+                        }
+                    })
+                            .show();
+                }
             }
 
             @Override
             public void onFailure(Call<Void> call, Throwable t) {
-
+                t.printStackTrace();
             }
         });
     }

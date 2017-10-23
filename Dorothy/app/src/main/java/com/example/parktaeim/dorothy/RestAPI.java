@@ -34,6 +34,8 @@ public interface RestAPI {
     @POST(APIUrl.NAVIGATION_URL)
     Call<JsonObject> navigation(@Header("Accept") String acceptHeader, @Header("appKey") String appKeyHeader, @QueryMap HashMap<String, Object> fieldMap);
 
+
+    @FormUrlEncoded
     @POST(APIUrl.REPORT)
     Call<Void> report(@FieldMap HashMap<String, Object> fieldMap);
 

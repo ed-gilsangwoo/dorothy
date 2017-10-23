@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.PointF;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
@@ -28,6 +29,8 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.skp.Tmap.TMapData;
 import com.skp.Tmap.TMapGpsManager;
+import com.skp.Tmap.TMapMarkerItem;
+import com.skp.Tmap.TMapPOIItem;
 import com.skp.Tmap.TMapPoint;
 import com.skp.Tmap.TMapPolyLine;
 import com.skp.Tmap.TMapView;
@@ -53,6 +56,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
  */
 
 public class NavigationActivity extends AppCompatActivity implements TMapGpsManager.onLocationChangedCallback {
+    private static final String TAG = "NavigationActivity";
 
     private RelativeLayout beforeStartLayout;
     private RelativeLayout startLayout;
@@ -72,7 +76,7 @@ public class NavigationActivity extends AppCompatActivity implements TMapGpsMana
     private double realtimeLongitude;
     private TextView distanceTextView;
     private TextView nextDistanceTextView;
-    private int i=0;
+    private int i = 0;
 
     private TMapGpsManager tMapGps;
     final TMapData tmapData = new TMapData();
@@ -86,42 +90,42 @@ public class NavigationActivity extends AppCompatActivity implements TMapGpsMana
         distanceTextView = (TextView) findViewById(R.id.distanceTextView);
         nextDistanceTextView = (TextView) findViewById(R.id.nextDistanceTextView);
 
-        for(i=0;i<geometryArrayList.size();){
-            if(geometryArrayList.get(i).getGeometryType().equals("\"Point\"")){
-                if(propertiesArrayList.get(i).getPointType().equals("\"S\"")){
+        for (i = 0; i < geometryArrayList.size(); ) {
+            if (geometryArrayList.get(i).getGeometryType().equals("\"Point\"")) {
+                if (propertiesArrayList.get(i).getPointType().equals("\"S\"")) {
                     myTTS = new TextToSpeech(getApplicationContext(), new TextToSpeech.OnInitListener() {
                         @Override
                         public void onInit(int i) {
                             myTTS.setLanguage(Locale.KOREAN);
-                            myTTS.speak("경로 안내를 시작합니다. "+propertiesArrayList.get(i).getDescription().toString()+"하세요.", TextToSpeech.QUEUE_FLUSH, null);
+                            myTTS.speak("경로 안내를 시작합니다. " + propertiesArrayList.get(i).getDescription().toString() + "하세요.", TextToSpeech.QUEUE_FLUSH, null);
 
                         }
                     });
                     i++;
 //                    break;
-                }else if(propertiesArrayList.get(i).getPointType().equals("\"N\"")){
-                    myTTS.speak(propertiesArrayList.get(i).getDescription(),TextToSpeech.QUEUE_FLUSH,null);
+                } else if (propertiesArrayList.get(i).getPointType().equals("\"N\"")) {
+                    myTTS.speak(propertiesArrayList.get(i).getDescription(), TextToSpeech.QUEUE_FLUSH, null);
                     break;
-                }else if(propertiesArrayList.get(i).getPointType().equals("\"E\"")){
+                } else if (propertiesArrayList.get(i).getPointType().equals("\"E\"")) {
                     myTTS.speak("목적지에 도착하였습니다.", TextToSpeech.QUEUE_FLUSH, null);
                     break;
                 }
 
-            }else if(geometryArrayList.get(i).getGeometryType().equals("\"LineString\"")){
+            } else if (geometryArrayList.get(i).getGeometryType().equals("\"LineString\"")) {
                 String lineDesc = propertiesArrayList.get(i).getDescription();
-                lineDesc = lineDesc.substring(1,lineDesc.length()-1);
+                lineDesc = lineDesc.substring(1, lineDesc.length() - 1);
                 int index = lineDesc.indexOf(",");
-                String distance = lineDesc.substring(index+2);
+                String distance = lineDesc.substring(index + 2);
 
-                String nextDistDesc = propertiesArrayList.get(i+2).getDescription();
-                nextDistDesc = nextDistDesc.substring(1,nextDistDesc.length()-1);
+                String nextDistDesc = propertiesArrayList.get(i + 2).getDescription();
+                nextDistDesc = nextDistDesc.substring(1, nextDistDesc.length() - 1);
                 int index2 = nextDistDesc.indexOf(",");
                 String nextDistance = nextDistDesc.substring(index2 + 2);
 
                 distanceTextView.setText(distance);
-                Log.d("distance",distance);
+                Log.d("distance", distance);
                 nextDistanceTextView.setText(nextDistance);
-                if(geometryArrayList.get(i+1).getCoordinates().get(0).equals(realtimeLongitude) && geometryArrayList.get(i).getCoordinates().get(1).equals(realtimeLatitude)){
+                if (geometryArrayList.get(i + 1).getCoordinates().get(0).equals(realtimeLongitude) && geometryArrayList.get(i).getCoordinates().get(1).equals(realtimeLatitude)) {
                     i++;
                 }
                 break;
@@ -206,7 +210,7 @@ public class NavigationActivity extends AppCompatActivity implements TMapGpsMana
         finishLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Toast.makeText(NavigationActivity.this,"onclick",Toast.LENGTH_SHORT).show();
+                Toast.makeText(NavigationActivity.this, "onclick", Toast.LENGTH_SHORT).show();
                 new AlertDialog.Builder(NavigationActivity.this)
                         .setTitle("종료").setMessage("도로시를 종료하시겠습니까?")
                         .setPositiveButton("종료하기", new DialogInterface.OnClickListener() {
@@ -253,7 +257,7 @@ public class NavigationActivity extends AppCompatActivity implements TMapGpsMana
 
     @Override
     public void onLocationChange(Location location) {
-        Log.d("loacationChange===","lat");
+        Log.d("loacationChange===", "lat");
         if (mTrackingMode) {
             tMapView.setLocationPoint(location.getLongitude(), location.getLatitude());
             tMapView.setCenterPoint(location.getLongitude(), location.getLatitude());
@@ -270,29 +274,29 @@ public class NavigationActivity extends AppCompatActivity implements TMapGpsMana
     // 직선 거리 계산
     private void getStraightDistance() {
         double startLon = realtimeLongitude;
-        Log.d("startLon",String.valueOf(startLon));
+        Log.d("startLon", String.valueOf(startLon));
         double startLat = realtimeLatitude;
-        Log.d("startLat",String.valueOf(startLat));
+        Log.d("startLat", String.valueOf(startLat));
 
         int idx = i;
-        Log.d("before i",String.valueOf(i));
-        Log.d("before idx",String.valueOf(idx));
-        if(idx!=0) {
-            if (idx % 2 == 1 || idx==1) {
+        Log.d("before i", String.valueOf(i));
+        Log.d("before idx", String.valueOf(idx));
+        if (idx != 0) {
+            if (idx % 2 == 1 || idx == 1) {
                 idx = idx - 1;
             }
         }
-        Log.d("after idx",String.valueOf(idx));
+        Log.d("after idx", String.valueOf(idx));
 
-        double endLon = Double.valueOf(geometryArrayList.get(idx+2).getCoordinates().get(0).toString());
-        double endLat = Double.valueOf(geometryArrayList.get(idx+2).getCoordinates().get(1).toString());
+        double endLon = Double.valueOf(geometryArrayList.get(idx + 2).getCoordinates().get(0).toString());
+        double endLat = Double.valueOf(geometryArrayList.get(idx + 2).getCoordinates().get(1).toString());
 
         float[] result = new float[1];
-        Location.distanceBetween(startLat,startLon,endLat,endLon,result);   // 거리 계산
-        Log.d("dist res",String.valueOf(result[0]));
+        Location.distanceBetween(startLat, startLon, endLat, endLon, result);   // 거리 계산
+        Log.d("dist res", String.valueOf(result[0]));
 
         distanceTextView = (TextView) findViewById(R.id.distanceTextView);
-        distanceTextView.setText(String.valueOf((int)result[0])+" m");   // setText
+        distanceTextView.setText(String.valueOf((int) result[0]) + " m");   // setText
 
     }
 
@@ -432,13 +436,13 @@ public class NavigationActivity extends AppCompatActivity implements TMapGpsMana
         TextView taxiFareTextView = (TextView) findViewById(R.id.taxiFareTextView);
 
         double totalKmDist = (double) totalDistance;
-        totalKmDist = totalDistance*0.001;
-        totalKmDist = Double.parseDouble(String.format("%.1f",totalKmDist));
+        totalKmDist = totalDistance * 0.001;
+        totalKmDist = Double.parseDouble(String.format("%.1f", totalKmDist));
 
-        totalTimeTextView.setText(String.valueOf(totalTime/60)+"분");
-        totalDistTextView.setText(String.valueOf(totalKmDist+"km"));
-        fareTextView.setText(String.valueOf(totalFare+"원"));
-        taxiFareTextView.setText(String.valueOf(taxiFare+"원"));
+        totalTimeTextView.setText(String.valueOf(totalTime / 60) + "분");
+        totalDistTextView.setText(String.valueOf(totalKmDist + "km"));
+        fareTextView.setText(String.valueOf(totalFare + "원"));
+        taxiFareTextView.setText(String.valueOf(taxiFare + "원"));
     }
 
     private void getPropertiesPointArray(ArrayList<DestinationResponseItem> arrayList, int i) {
@@ -508,7 +512,17 @@ public class NavigationActivity extends AppCompatActivity implements TMapGpsMana
 
         mTrackingMode = false;
         tMapView.setTrackingMode(mTrackingMode);
+        tMapView.setOnLongClickListenerCallback(new TMapView.OnLongClickListenerCallback() {
+            @Override
+            public void onLongPressEvent(ArrayList<TMapMarkerItem> arrayList, ArrayList<TMapPOIItem> arrayList1, TMapPoint tMapPoint) {
+                Intent intent = new Intent(getApplicationContext(), ReportActivity.class);
+                Log.d(TAG, "onLongPressEvent: "+tMapPoint.getLatitude() + " : " + tMapPoint.getLongitude());
+                intent.putExtra("lat", tMapPoint.getLatitude());
+                intent.putExtra("lon", tMapPoint.getLongitude());
 
+                startActivity(intent);
+            }
+        });
     }
 
 
