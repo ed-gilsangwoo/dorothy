@@ -14,4 +14,6 @@ public class APIUrl {
 
     public static final String SEARCH = "tmap/pois";
     public static final String NAVIGATION_URL = "tmap/routes";
+
+    public static final String REPORT = "report";
 }

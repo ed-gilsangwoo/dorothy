@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.PointF;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.AsyncTask;
@@ -30,6 +31,8 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.skp.Tmap.TMapData;
 import com.skp.Tmap.TMapGpsManager;
+import com.skp.Tmap.TMapMarkerItem;
+import com.skp.Tmap.TMapPOIItem;
 import com.skp.Tmap.TMapPoint;
 import com.skp.Tmap.TMapPolyLine;
 import com.skp.Tmap.TMapView;
@@ -55,6 +58,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
  */
 
 public class NavigationActivity extends AppCompatActivity implements TMapGpsManager.onLocationChangedCallback {
+    private static final String TAG = "NavigationActivity";
 
     private RelativeLayout beforeStartLayout;
     private RelativeLayout startLayout;
@@ -80,7 +84,7 @@ public class NavigationActivity extends AppCompatActivity implements TMapGpsMana
     private TMapGpsManager tMapGps;
     final TMapData tmapData = new TMapData();
 
-    private NaverTTSTask mNaverTTSTask;
+//    private NaverTTSTask mNaverTTSTask;
 
     ArrayList<DestinationResponseItem> geometryArrayList;
     ArrayList<DestinationResponseItem> propertiesArrayList;
@@ -101,17 +105,9 @@ public class NavigationActivity extends AppCompatActivity implements TMapGpsMana
                     Log.d("S proper", propertiesArrayList.get(i).getDescription().toString());
 
                     String mTextString = "경로 안내를 시작합니다. " + propertiesArrayList.get(i).getDescription().toString() + "하세요.";
-                    mNaverTTSTask = new NaverTTSTask();
-                    mNaverTTSTask.execute(mTextString);
+//                    mNaverTTSTask = new NaverTTSTask();
+//                    mNaverTTSTask.execute(mTextString);
 
-                    myTTS = new TextToSpeech(getApplicationContext(), new TextToSpeech.OnInitListener() {
-                        @Override
-                        public void onInit(int i) {
-                            myTTS.setLanguage(Locale.KOREAN);
-                            myTTS.speak("경로 안내를 시작합니다. " + propertiesArrayList.get(i).getDescription().toString() + "하세요.", TextToSpeech.QUEUE_FLUSH, null);
-                            Log.d("proper", propertiesArrayList.get(i).getDescription().toString());
-                        }
-                    });
                     i++;
 
                 } else if (propertiesArrayList.get(i).getPointType().equals("\"N\"")) {
@@ -121,11 +117,9 @@ public class NavigationActivity extends AppCompatActivity implements TMapGpsMana
                         public void onInit(int i) {
                             myTTS.setLanguage(Locale.KOREAN);
                             myTTS.speak(propertiesArrayList.get(i).getDescription(), TextToSpeech.QUEUE_FLUSH, null);
-
                         }
                     });
                     i++;
-
                 } else if (propertiesArrayList.get(i).getPointType().equals("\"E\"")) {
                     Toast.makeText(NavigationActivity.this, String.valueOf(i), Toast.LENGTH_SHORT).show();
 
@@ -138,14 +132,13 @@ public class NavigationActivity extends AppCompatActivity implements TMapGpsMana
                         }
                     });
 
-                    break;
                 }
 
             } else if (geometryArrayList.get(i).getGeometryType().equals("\"LineString\"")) {
                 Toast.makeText(NavigationActivity.this, String.valueOf(i), Toast.LENGTH_SHORT).show();
                 i++;
 //
-                if(i<geometryArrayList.size()-1){
+                if (i < geometryArrayList.size() - 1) {
                     String lineDesc = propertiesArrayList.get(i).getDescription();
                     lineDesc = lineDesc.substring(1, lineDesc.length() - 1);
                     int index = lineDesc.indexOf(",");
@@ -179,16 +172,18 @@ public class NavigationActivity extends AppCompatActivity implements TMapGpsMana
                     if (corner < 3110) {
                         i++;
                     }
-                }
-                else{
+                } else {
                     distanceTextView.setText(nextDistance);
                     nextDistanceTextView.setVisibility(View.INVISIBLE);
 
-                    double endLat= Double.valueOf(geometryArrayList.get(i).getCoordinates().get(1).toString());
-                    double endLon= Double.valueOf(geometryArrayList.get(i).getCoordinates().get(0).toString());
+                    double endLat = Double.valueOf(geometryArrayList.get(i).getCoordinates().get(1).toString());
+                    double endLon = Double.valueOf(geometryArrayList.get(i).getCoordinates().get(0).toString());
                     float[] result = new float[1];
 //                    Location.distanceBetween(realtimeLatitude, realtimeLongitude, Double.valueOf(geometryArrayList.get(i).getCoordinates().get(1).toString()), Double.valueOf(geometryArrayList.get(i).getCoordinates().get(0).toString()),  result);   // 거리 계산
-                    Location.distanceBetween(realtimeLatitude, realtimeLongitude, endLat, endLon,  result);   // 거리 계산
+                    Location.distanceBetween(realtimeLatitude, realtimeLongitude, endLat, endLon, result);   // 거리 계산
+
+                    Log.d("realtimeLat ==="+String.valueOf(realtimeLatitude),"realtimeLon ==="+String.valueOf(realtimeLongitude));
+                    Log.d("endLat ==="+String.valueOf(endLat),"endLon ==="+String.valueOf(endLon));
 
                     String cornerDist = String.valueOf(result[0]);
 
@@ -197,6 +192,7 @@ public class NavigationActivity extends AppCompatActivity implements TMapGpsMana
                     if (corner < 3110) {
                         i++;
                     }
+
                 }
             }
 
@@ -362,14 +358,15 @@ public class NavigationActivity extends AppCompatActivity implements TMapGpsMana
         }
         Log.d("after idx", String.valueOf(idx));
 
-        double endLon,endLat;
-        if (i < geometryArrayList.size()-2) {
+        double endLon, endLat;
+        if (i < geometryArrayList.size() - 2) {
             endLon = Double.valueOf(geometryArrayList.get(idx + 2).getCoordinates().get(0).toString());
             endLat = Double.valueOf(geometryArrayList.get(idx + 2).getCoordinates().get(1).toString());
-        }else {
+        } else {
             endLon = Double.valueOf(geometryArrayList.get(idx).getCoordinates().get(0).toString());
             endLat = Double.valueOf(geometryArrayList.get(idx).getCoordinates().get(1).toString());
         }
+
 
         float[] result = new float[1];
         Location.distanceBetween(startLat, startLon, endLat, endLon, result);   // 거리 계산
@@ -593,6 +590,18 @@ public class NavigationActivity extends AppCompatActivity implements TMapGpsMana
         mTrackingMode = false;
         tMapView.setTrackingMode(true);
 
+        tMapView.setOnLongClickListenerCallback(new TMapView.OnLongClickListenerCallback() {
+            @Override
+            public void onLongPressEvent(ArrayList<TMapMarkerItem> arrayList, ArrayList<TMapPOIItem> arrayList1, TMapPoint tMapPoint) {
+                Intent intent = new Intent(getApplicationContext(), ReportActivity.class);
+                Log.d(TAG, "onLongPressEvent: " + tMapPoint.getLatitude() + " : " + tMapPoint.getLongitude());
+                intent.putExtra("lat", tMapPoint.getLatitude());
+                intent.putExtra("lon", tMapPoint.getLongitude());
+
+
+            startActivity(intent);
+        }
+        });
     }
 
 
@@ -637,24 +646,21 @@ public class NavigationActivity extends AppCompatActivity implements TMapGpsMana
 
     }
 
-    private class NaverTTSTask extends AsyncTask<String[], Void, String> {
-
-        @Override
-        protected String doInBackground(String[]... strings) {
-            //여기서 서버에 요청
-            TTSApi.main(mTextString);
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(String result) {
-            super.onPostExecute(result);
-            //방금 받은 파일명의 mp3가 있으면 플레이 시키자. 맞나 여기서 하는거?
-            //아닌가 파일을 만들고 바로 실행되게 해야 하나? AsyncTask 백그라운드 작업중에...?
-
-        }
-    }
-
+//    private class NaverTTSTask extends AsyncTask<String[], Void, String> {
+//
+//        @Override
+//        protected String doInBackground(String[]... strings) {
+//            //여기서 서버에 요청
+//            TTSApi.main(mTextString);
+//            return null;
+//        }
+//
+//        @Override
+//        protected void onPostExecute(String result) {
+//            super.onPostExecute(result);
+//
+//        }
+//    }
 
 
 }

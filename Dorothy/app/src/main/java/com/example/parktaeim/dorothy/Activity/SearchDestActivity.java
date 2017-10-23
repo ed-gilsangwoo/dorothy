@@ -77,7 +77,6 @@ public class SearchDestActivity extends AppCompatActivity {
 
         restAPI = builder.create(RestAPI.class);
         setSearchView();
-
         setUpRecyclerView();
 
     }
