@@ -12,8 +12,20 @@ import android.widget.Button;
 import android.widget.Toast;
 
 import com.anton46.stepsview.StepsView;
+import com.example.parktaeim.dorothy.APIUrl;
 import com.example.parktaeim.dorothy.R;
+import com.example.parktaeim.dorothy.RestAPI;
 import com.kofigyan.stateprogressbar.StateProgressBar;
+
+import java.util.HashMap;
+import java.util.concurrent.TimeUnit;
+
+import okhttp3.OkHttpClient;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
 
 /**
  * Created by parktaeim on 2017. 10. 6..
@@ -31,10 +43,16 @@ public class ReportActivity extends AppCompatActivity {
     private Button strengthButtons[] = new Button[3];
     private int strength = 1;
 
+    private double lon = 0;
+    private double lat = 0;
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_report);
+
+        lat = getIntent().getDoubleExtra("lat", 0);
+        lon = getIntent().getDoubleExtra("lon", 0);
 
         initStrengthBar();
         initStateButtons();
@@ -42,7 +60,36 @@ public class ReportActivity extends AppCompatActivity {
     }
 
     private void initSubmitButton() {
+        OkHttpClient client = new OkHttpClient.Builder()
+                .connectTimeout(100, TimeUnit.SECONDS)
+                .readTimeout(100, TimeUnit.SECONDS).build();
 
+        Retrofit builder = new Retrofit.Builder()
+                .baseUrl(APIUrl.API_BASE_URL).client(client)
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+
+        RestAPI restAPI = builder.create(RestAPI.class);
+
+        HashMap<String, Object> fieldMap = new HashMap<>();
+        fieldMap.put("lat", lat);
+        fieldMap.put("lng", lon);
+        fieldMap.put("kind", state);
+        fieldMap.put("scope", strength);
+
+        Call<Void> call = restAPI.report(fieldMap);
+
+        call.enqueue(new Callback<Void>() {
+            @Override
+            public void onResponse(Call<Void> call, Response<Void> response) {
+
+            }
+
+            @Override
+            public void onFailure(Call<Void> call, Throwable t) {
+
+            }
+        });
     }
 
     private void initStrengthBar() {
