@@ -35,9 +35,6 @@
         <activity android:name=".Activity.LoginActivity"/>
         <activity android:name=".Activity.SignUpActivity"/>
         <activity android:name=".Activity.SearchDestActivity"/>
-        <activity android:name=".Activity.ReportActivity">
-
-        </activity>
         <activity android:name=".Activity.NavigationActivity">
 
         </activity>

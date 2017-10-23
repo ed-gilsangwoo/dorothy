@@ -7,6 +7,7 @@ import android.content.SharedPreferences;
 import android.graphics.PointF;
 import android.location.Location;
 import android.location.LocationManager;
+import android.media.Image;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.speech.tts.TextToSpeech;
@@ -16,6 +17,8 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -29,6 +32,7 @@ import com.example.parktaeim.dorothy.TTSApi;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.kofigyan.stateprogressbar.StateProgressBar;
 import com.skp.Tmap.TMapData;
 import com.skp.Tmap.TMapGpsManager;
 import com.skp.Tmap.TMapMarkerItem;
@@ -46,6 +50,7 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
+import cn.pedant.SweetAlert.SweetAlertDialog;
 import okhttp3.OkHttpClient;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -76,13 +81,37 @@ public class NavigationActivity extends AppCompatActivity implements TMapGpsMana
     private TextToSpeech myTTS;
     private double realtimeLatitude;
     private double realtimeLongitude;
+    private double realtimeLatitude2;
+    private double realtimeLongitude2;
     private TextView distanceTextView;
     private TextView nextDistanceTextView;
     private int i = 0;
     private String nextDistance;
+    private RelativeLayout reportLayout;
 
     private TMapGpsManager tMapGps;
     final TMapData tmapData = new TMapData();
+
+
+    private StateProgressBar strengthBar;
+
+    private String[] descData = {"1단계", "2단계", "3단계"};
+
+    private Button stateButtons[] = new Button[3];
+    private int state = 1;
+
+    private Button strengthButtons[] = new Button[3];
+    private int strength = 1;
+
+    private double lon = 0;
+    private double lat = 0;
+
+    private Button submitButton;
+
+    private Retrofit builder;
+    private OkHttpClient client;
+    private RestAPI restAPI;
+
 
 //    private NaverTTSTask mNaverTTSTask;
 
@@ -131,6 +160,7 @@ public class NavigationActivity extends AppCompatActivity implements TMapGpsMana
 
                         }
                     });
+                    break;
 
                 }
 
@@ -160,7 +190,7 @@ public class NavigationActivity extends AppCompatActivity implements TMapGpsMana
                         pointIdx = pointIdx - 1;
                     }
                     Log.d("after idx", String.valueOf(pointIdx));
-//
+
 //                    float[] result = new float[2];
 //                    Location.distanceBetween(Double.valueOf(geometryArrayList.get(pointIdx + 2).getCoordinates().get(1).toString()), Double.valueOf(geometryArrayList.get(pointIdx + 2).getCoordinates().get(0).toString()), realtimeLatitude, realtimeLongitude, result);   // 거리 계산
 //                    String cornerDist = String.valueOf(result[0]);
@@ -168,7 +198,7 @@ public class NavigationActivity extends AppCompatActivity implements TMapGpsMana
 //                    Log.d("Corner Dist ==", String.valueOf(cornerDist));
 //                    int corner = (int) Double.parseDouble(cornerDist);
 
-                    int corner = 140;
+                    int corner = 0;
                     if (corner < 3110) {
                         i++;
                     }
@@ -180,10 +210,10 @@ public class NavigationActivity extends AppCompatActivity implements TMapGpsMana
                     double endLon = Double.valueOf(geometryArrayList.get(i).getCoordinates().get(0).toString());
                     float[] result = new float[1];
 //                    Location.distanceBetween(realtimeLatitude, realtimeLongitude, Double.valueOf(geometryArrayList.get(i).getCoordinates().get(1).toString()), Double.valueOf(geometryArrayList.get(i).getCoordinates().get(0).toString()),  result);   // 거리 계산
-                    Location.distanceBetween(realtimeLatitude, realtimeLongitude, endLat, endLon, result);   // 거리 계산
+                    Location.distanceBetween(realtimeLatitude2, realtimeLongitude2, endLat, endLon, result);   // 거리 계산
 
-                    Log.d("realtimeLat ==="+String.valueOf(realtimeLatitude),"realtimeLon ==="+String.valueOf(realtimeLongitude));
-                    Log.d("endLat ==="+String.valueOf(endLat),"endLon ==="+String.valueOf(endLon));
+                    Log.d("realtimeLat ===" + String.valueOf(realtimeLatitude2), "realtimeLon ===" + String.valueOf(realtimeLongitude2));
+                    Log.d("endLat ===" + String.valueOf(endLat), "endLon ===" + String.valueOf(endLon));
 
                     String cornerDist = String.valueOf(result[0]);
 
@@ -194,6 +224,7 @@ public class NavigationActivity extends AppCompatActivity implements TMapGpsMana
                     }
 
                 }
+
             }
 
 
@@ -210,6 +241,9 @@ public class NavigationActivity extends AppCompatActivity implements TMapGpsMana
         setMap();
         getNaviData();
         setBottomLayout();
+        initStrengthBar();
+        initStateButtons();
+        initSubmitButton();
 
     }
 
@@ -331,10 +365,14 @@ public class NavigationActivity extends AppCompatActivity implements TMapGpsMana
             realtimeLongitude = location.getLongitude();
             Log.d("naviActi current Loc =" + String.valueOf(location.getLatitude()), String.valueOf(location.getLongitude()));
 
+            realtimeLatitude2 = realtimeLatitude;
+            realtimeLongitude2 = realtimeLongitude;
+
             getStraightDistance();
 
         }
     }
+
 
     // 직선 거리 계산
     private void getStraightDistance() {
@@ -590,18 +628,32 @@ public class NavigationActivity extends AppCompatActivity implements TMapGpsMana
         mTrackingMode = false;
         tMapView.setTrackingMode(true);
 
+        reportLayout = (RelativeLayout) findViewById(R.id.reportLayout);
+        ImageView cancelBtn = (ImageView) findViewById(R.id.report_cancelBtn);
+
+        reportLayout.setVisibility(View.GONE);
+
         tMapView.setOnLongClickListenerCallback(new TMapView.OnLongClickListenerCallback() {
             @Override
             public void onLongPressEvent(ArrayList<TMapMarkerItem> arrayList, ArrayList<TMapPOIItem> arrayList1, TMapPoint tMapPoint) {
-                Intent intent = new Intent(getApplicationContext(), ReportActivity.class);
-                Log.d(TAG, "onLongPressEvent: " + tMapPoint.getLatitude() + " : " + tMapPoint.getLongitude());
-                intent.putExtra("lat", tMapPoint.getLatitude());
-                intent.putExtra("lon", tMapPoint.getLongitude());
+
+                reportLayout.setVisibility(View.VISIBLE);
+
+                lat = tMapPoint.getLatitude();
+                lon = tMapPoint.getLatitude();
 
 
-            startActivity(intent);
-        }
+            }
         });
+
+        cancelBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                reportLayout.setVisibility(View.GONE);
+            }
+        });
+
+
     }
 
 
@@ -662,5 +714,181 @@ public class NavigationActivity extends AppCompatActivity implements TMapGpsMana
 //        }
 //    }
 
+
+
+    // 도로 신고
+    private void initSubmitButton() {
+        client = new OkHttpClient.Builder()
+                .connectTimeout(100, TimeUnit.SECONDS)
+                .readTimeout(100, TimeUnit.SECONDS).build();
+
+        builder = new Retrofit.Builder()
+                .baseUrl(APIUrl.API_BASE_URL).client(client)
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+
+        restAPI = builder.create(RestAPI.class);
+
+        submitButton = (Button) findViewById(R.id.btn_report_submit);
+
+        submitButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                final SweetAlertDialog dialog = new SweetAlertDialog(NavigationActivity.this, SweetAlertDialog.WARNING_TYPE)
+                        .setTitleText("주의!")
+                        .setContentText("허위신고시 받는 불이익은 책임지지 않습니다.\n신고하시겠어요?")
+                        .setConfirmText("예")
+                        .setCancelText("아니오");
+
+                dialog.setCancelClickListener(new SweetAlertDialog.OnSweetClickListener() {
+                    @Override
+                    public void onClick(SweetAlertDialog sweetAlertDialog) {
+                        sweetAlertDialog.cancel();
+                    }
+                });
+
+                dialog.setConfirmClickListener(new SweetAlertDialog.OnSweetClickListener() {
+                    @Override
+                    public void onClick(SweetAlertDialog sweetAlertDialog) {
+                        report();
+                        sweetAlertDialog.cancel();
+                    }
+                });
+
+                dialog.show();
+            }
+        });
+    }
+
+    private void report() {
+        HashMap<String, Object> fieldMap = new HashMap<>();
+
+        fieldMap.put("id", "test01");
+        fieldMap.put("lat", lat);
+        fieldMap.put("lng", lon);
+        fieldMap.put("kind", state);
+        fieldMap.put("scope", strength);
+
+        Call<Void> call = restAPI.report(fieldMap);
+        Toast.makeText(getApplicationContext(), "CALLED", Toast.LENGTH_SHORT).show();
+        call.enqueue(new Callback<Void>() {
+            @Override
+            public void onResponse(Call<Void> call, Response<Void> response) {
+                Toast.makeText(getApplicationContext(), "startResponse", Toast.LENGTH_SHORT).show();
+
+                Log.d("Navigation","onResponse: succeed" + response.code());
+                if (response.code() == 200) {
+                    new SweetAlertDialog(NavigationActivity.this, SweetAlertDialog.SUCCESS_TYPE)
+                            .setContentText("신고가 접수되었습니다. 감사합니다.")
+                            .setConfirmText("알겠습니다.").setConfirmClickListener(new SweetAlertDialog.OnSweetClickListener() {
+                        @Override
+                        public void onClick(SweetAlertDialog sweetAlertDialog) {
+                            sweetAlertDialog.cancel();
+                            reportLayout.setVisibility(View.GONE);
+                        }
+                    })
+                            .show();
+                }
+                if (response.code() == 400) {
+                    new SweetAlertDialog(NavigationActivity.this, SweetAlertDialog.ERROR_TYPE)
+                            .setContentText("잘못된 요청입니다.")
+                            .setConfirmText("알겠습니다.").setConfirmClickListener(new SweetAlertDialog.OnSweetClickListener() {
+                        @Override
+                        public void onClick(SweetAlertDialog sweetAlertDialog) {
+                            sweetAlertDialog.cancel();
+                        }
+                    })
+                            .show();
+                }
+                if (response.code() == 500) {
+                    new SweetAlertDialog(NavigationActivity.this, SweetAlertDialog.ERROR_TYPE)
+                            .setContentText("서버 오류입니다.")
+                            .setConfirmText("알겠습니다.").setConfirmClickListener(new SweetAlertDialog.OnSweetClickListener() {
+                        @Override
+                        public void onClick(SweetAlertDialog sweetAlertDialog) {
+                            sweetAlertDialog.cancel();
+                        }
+                    })
+                            .show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Void> call, Throwable t) {
+                t.printStackTrace();
+            }
+        });
+    }
+
+    private void initStrengthBar() {
+        strengthBar = (StateProgressBar) findViewById(R.id.progress_bar);
+        strengthBar.setCurrentStateNumber(StateProgressBar.StateNumber.ONE);
+        strengthBar.setStateDescriptionData(descData);
+        strengthBar.enableAnimationToCurrentState(true);
+
+        strengthButtons[0] = (Button) findViewById(R.id.strength1);
+        strengthButtons[1] = (Button) findViewById(R.id.strength2);
+        strengthButtons[2] = (Button) findViewById(R.id.strength3);
+
+        strengthButtons[0].setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                strength = 1;
+                strengthBar.animate();
+                strengthBar.setCurrentStateNumber(StateProgressBar.StateNumber.ONE);
+                Toast.makeText(getApplicationContext(), strength + "", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        strengthButtons[1].setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                strength = 2;
+                strengthBar.animate();
+                strengthBar.setCurrentStateNumber(StateProgressBar.StateNumber.TWO);
+                Toast.makeText(getApplicationContext(), strength + "", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        strengthButtons[2].setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                strength = 3;
+                strengthBar.animate();
+                strengthBar.setCurrentStateNumber(StateProgressBar.StateNumber.THREE);
+                Toast.makeText(getApplicationContext(), strength + "", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void initStateButtons() {
+        stateButtons[0] = (Button) findViewById(R.id.btn_roadDamage);
+        stateButtons[1] = (Button) findViewById(R.id.btn_flood);
+        stateButtons[2] = (Button) findViewById(R.id.btn_landslide);
+
+        stateButtons[0].setBackgroundColor(getResources().getColor(R.color.colorPrimary, getTheme()));
+        stateButtons[0].setTextColor(getResources().getColor(android.R.color.white, getTheme()));
+
+        for (int i = 0; i < stateButtons.length; i++) {
+            final int finalI = i;
+            stateButtons[i].setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    state = finalI + 1;
+                    for (int j = 0; j < 3; j++) {
+                        if (j + 1 == state) {
+                            stateButtons[j].setBackgroundColor(getResources().getColor(R.color.colorPrimary, getTheme()));
+                            stateButtons[j].setTextColor(getResources().getColor(android.R.color.white, getTheme()));
+                        } else {
+                            stateButtons[j].setBackgroundColor(getResources().getColor(android.R.color.white, getTheme()));
+                            stateButtons[j].setTextColor(getResources().getColor(R.color.gray, getTheme()));
+                        }
+                    }
+                    Toast.makeText(getApplicationContext(), state + "", Toast.LENGTH_SHORT).show();
+                }
+            });
+        }
+    }
 
 }
