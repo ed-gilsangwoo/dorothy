@@ -78,7 +78,7 @@
                 android:id="@+id/report_cancelBtn"
                 android:layout_width="24dp"
                 android:layout_height="24dp"
-                android:src="@drawable/icon_cancel"
+                android:src="@drawable/icon_cancel_report"
                 android:layout_alignParentRight="true"/>
             <LinearLayout
                 android:id="@+id/layout1"
