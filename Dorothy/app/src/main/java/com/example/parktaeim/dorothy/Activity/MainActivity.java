@@ -123,8 +123,8 @@ public class MainActivity extends AppCompatActivity implements TMapGpsManager.on
         tMapGps = new TMapGpsManager(MainActivity.this);
         tMapGps.setMinTime(100);
         tMapGps.setMinDistance(5);
-        tMapGps.setProvider(tMapGps.NETWORK_PROVIDER);  // 인터넷 이용 (실내일때 유용)
-//        tMapGps.setProvider(tMapGps.GPS_PROVIDER);    // 현위치 gps 이용
+//        tMapGps.setProvider(tMapGps.NETWORK_PROVIDER);  // 인터넷 이용 (실내일때 유용)
+        tMapGps.setProvider(tMapGps.GPS_PROVIDER);    // 현위치 gps 이용
         tMapGps.OpenGps();
 
 

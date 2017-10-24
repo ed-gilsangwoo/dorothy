@@ -24,7 +24,7 @@
 
 
             <ImageView
-                android:id="@+id/icon"
+                android:id="@+id/directionIcon"
                 android:layout_width="20dp"
                 android:layout_height="20dp"
                 android:layout_alignParentLeft="true"
@@ -42,7 +42,7 @@
                 android:textSize="26dp" />
 
             <ImageView
-                android:id="@+id/nextIcon"
+                android:id="@+id/nextDirectionIcon"
                 android:layout_width="20dp"
                 android:layout_height="20dp"
                 android:layout_centerVertical="true"
