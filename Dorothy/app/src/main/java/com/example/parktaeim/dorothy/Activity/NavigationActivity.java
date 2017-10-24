@@ -523,8 +523,7 @@ public class NavigationActivity extends AppCompatActivity implements TMapGpsMana
                 reportLayout.setVisibility(View.VISIBLE);
 
                 lat = tMapPoint.getLatitude();
-                lon = tMapPoint.getLatitude();
-
+                lon = tMapPoint.getLongitude();
 
             }
         });
@@ -919,9 +918,10 @@ public class NavigationActivity extends AppCompatActivity implements TMapGpsMana
                     public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
                         Log.d(TAG, "onResponse: " + response.code());
                         Log.d(TAG, "onResponse: " + call.request().url());
+
                         if (response.code() == 200) {
                             tMapView.removeAllMarkerItem();
-
+                            int i = 0;
                             JsonArray res = response.body().get("showKey").getAsJsonArray();
                             Iterator<JsonElement> iterator = res.iterator();
                             while (iterator.hasNext()) {
@@ -935,7 +935,8 @@ public class NavigationActivity extends AppCompatActivity implements TMapGpsMana
                                 if (type == 1) markerItem.setIcon(road_damage);
                                 if (type == 2) markerItem.setIcon(water_damage);
                                 if (type == 3) markerItem.setIcon(mountain_damage);
-                                tMapView.addMarkerItem("marker", markerItem);
+                                tMapView.addMarkerItem("marker:" + i++, markerItem);
+
                             }
                         }
                     }
@@ -958,5 +959,67 @@ public class NavigationActivity extends AppCompatActivity implements TMapGpsMana
 //                Log.i("tag", "A Kiss every 5 seconds");
 //            }
 //        }, 0, 5000);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        final Bitmap mountain_damage = BitmapFactory.decodeResource(getResources(), R.drawable.ic_location_mountain_damage_48dp_iloveimg_resized);
+//        mountain_damage.setWidth(mountain_damage.getWidth() / 10);
+//        mountain_damage.setHeight(mountain_damage.getHeight() / 10);
+
+        final Bitmap road_damage = BitmapFactory.decodeResource(getResources(), R.drawable.ic_location_road_damage_48dp_iloveimg_resized);
+//        road_damage.setWidth(road_damage.getWidth() / 10);
+//        road_damage.setHeight(road_damage.getHeight() / 10);
+
+        final Bitmap water_damage = BitmapFactory.decodeResource(getResources(), R.drawable.ic_location_water_damage_48dp_iloveimg_resized);
+//        water_damage.setWidth(water_damage.getWidth() / 10);
+//        water_damage.setHeight(water_damage.getHeight() / 10);
+
+        OkHttpClient client = new OkHttpClient.Builder()
+                .connectTimeout(100, TimeUnit.SECONDS)
+                .readTimeout(100, TimeUnit.SECONDS).build();
+
+        Retrofit builder = new Retrofit.Builder()
+                .baseUrl(APIUrl.API_BASE_URL).client(client)
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+        RestAPI restAPI = builder.create(RestAPI.class);
+
+        Call<JsonObject> call = restAPI.getReportList();
+        Log.d(TAG, "run: " + call.request().url());
+        call.enqueue(new Callback<JsonObject>() {
+            @Override
+            public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
+                Log.d(TAG, "onResponse: " + response.code());
+                Log.d(TAG, "onResponse: " + call.request().url());
+
+                if (response.code() == 200) {
+                    tMapView.removeAllMarkerItem();
+                    int i = 0;
+                    JsonArray res = response.body().get("showKey").getAsJsonArray();
+                    Iterator<JsonElement> iterator = res.iterator();
+                    while (iterator.hasNext()) {
+                        JsonObject obj = iterator.next().getAsJsonObject();
+                        Log.d(TAG, "onResponse: " + obj.toString());
+                        int type = obj.get("kind").getAsInt();
+                        TMapMarkerItem markerItem = new TMapMarkerItem();
+                        TMapPoint markerPoint = new TMapPoint(obj.get("lat").getAsDouble(), obj.get("lng").getAsDouble());
+                        markerItem.setTMapPoint(markerPoint);
+                        markerItem.setVisible(TMapMarkerItem.VISIBLE);
+                        if (type == 1) markerItem.setIcon(road_damage);
+                        if (type == 2) markerItem.setIcon(water_damage);
+                        if (type == 3) markerItem.setIcon(mountain_damage);
+                        tMapView.addMarkerItem("marker:" + i++, markerItem);
+
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Call<JsonObject> call, Throwable t) {
+                t.printStackTrace();
+            }
+        });
     }
 }
