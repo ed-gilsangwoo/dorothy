@@ -25,8 +25,8 @@
 
             <ImageView
                 android:id="@+id/directionIcon"
-                android:layout_width="20dp"
-                android:layout_height="20dp"
+                android:layout_width="60dp"
+                android:layout_height="60dp"
                 android:layout_alignParentLeft="true"
                 android:layout_centerVertical="true"
                 android:layout_marginLeft="70dp"
@@ -43,8 +43,8 @@
 
             <ImageView
                 android:id="@+id/nextDirectionIcon"
-                android:layout_width="20dp"
-                android:layout_height="20dp"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
                 android:layout_centerVertical="true"
                 android:layout_marginRight="7dp"
                 android:layout_toLeftOf="@+id/nextDistanceTextView"

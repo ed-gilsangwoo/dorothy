@@ -1,18 +1,13 @@
 package com.example.parktaeim.dorothy.Activity;
 
-import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.graphics.PointF;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.location.Location;
-import android.location.LocationManager;
-import android.media.Image;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.speech.tts.TextToSpeech;
 import android.support.annotation.Nullable;
-import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -28,7 +23,6 @@ import com.example.parktaeim.dorothy.APIUrl;
 import com.example.parktaeim.dorothy.Model.DestinationResponseItem;
 import com.example.parktaeim.dorothy.R;
 import com.example.parktaeim.dorothy.RestAPI;
-import com.example.parktaeim.dorothy.TTSApi;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -41,12 +35,9 @@ import com.skp.Tmap.TMapPoint;
 import com.skp.Tmap.TMapPolyLine;
 import com.skp.Tmap.TMapView;
 
-import org.json.JSONObject;
-import org.w3c.dom.Text;
-
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Locale;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -131,8 +122,10 @@ public class NavigationActivity extends AppCompatActivity implements TMapGpsMana
         initStrengthBar();
         initStateButtons();
         initSubmitButton();
-
+        initializeMarkers();
+        markerUpdate();
     }
+
 
     // 경로취소 종료 소리 피드백 하는 레이아웃 올렸다 내렸다
     private void setBottomLayout() {
@@ -149,6 +142,7 @@ public class NavigationActivity extends AppCompatActivity implements TMapGpsMana
         bottomDownLayout.setVisibility(View.VISIBLE);
 
         bottomDownLayout.setOnClickListener(new View.OnClickListener() {
+
             @Override
             public void onClick(View view) {
                 bottomUpLayout.setVisibility(View.VISIBLE);
@@ -257,8 +251,8 @@ public class NavigationActivity extends AppCompatActivity implements TMapGpsMana
 
         }
 
-        if(startLayout.getVisibility() == View.VISIBLE){
-            setNavigation();
+        if (startLayout.getVisibility() == View.VISIBLE) {
+//            setNavigation();
 
         }
     }
@@ -504,15 +498,15 @@ public class NavigationActivity extends AppCompatActivity implements TMapGpsMana
 
         tMapView.setCompassMode(true);    // 현재 보는 방향
         tMapView.setIconVisibility(true);   // 아이콘 표시
-        tMapView.setZoomLevel(12);   // 줌레벨
+        tMapView.setZoomLevel(14);   // 줌레벨
         tMapView.setMapType(TMapView.MAPTYPE_STANDARD);
         tMapView.setLanguage(TMapView.LANGUAGE_KOREAN);
 
         tMapGps = new TMapGpsManager(NavigationActivity.this);
         tMapGps.setMinTime(10000);
         tMapGps.setMinDistance(10);
-//        tMapGps.setProvider(tMapGps.NETWORK_PROVIDER);  // 인터넷 이용 (실내일때 유용)
-        tMapGps.setProvider(tMapGps.GPS_PROVIDER);    // 현위치 gps 이용
+        tMapGps.setProvider(tMapGps.NETWORK_PROVIDER);  // 인터넷 이용 (실내일때 유용)
+//        tMapGps.setProvider(tMapGps.GPS_PROVIDER);    // 현위치 gps 이용
         tMapGps.OpenGps();
 
         tMapView.setTrackingMode(true);
@@ -529,8 +523,7 @@ public class NavigationActivity extends AppCompatActivity implements TMapGpsMana
                 reportLayout.setVisibility(View.VISIBLE);
 
                 lat = tMapPoint.getLatitude();
-                lon = tMapPoint.getLatitude();
-
+                lon = tMapPoint.getLongitude();
 
             }
         });
@@ -566,12 +559,15 @@ public class NavigationActivity extends AppCompatActivity implements TMapGpsMana
 
                 beforeStartLayout.setVisibility(View.GONE);
                 startLayout.setVisibility(View.VISIBLE);
-                Log.d("beforeLayout Gone=====","startLayout Visible===-=====");
+                Log.d("beforeLayout Gone=====", "startLayout Visible===-=====");
 
 //                tMapView.removeTMapPath();
                 tMapView.setZoomLevel(18);
                 tMapView.setTrackingMode(mTrackingMode);   //트래킹모드
                 tMapView.setSightVisible(true);
+
+                setNavigation();
+
 
             }
         });
@@ -586,55 +582,44 @@ public class NavigationActivity extends AppCompatActivity implements TMapGpsMana
 
     }
 
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        Log.d("on Destroy ==========","=====================");
-
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        Log.d("on Pause =============","=====================");
-    }
 
     private void setNavigation() {
 
         distanceTextView = (TextView) findViewById(R.id.distanceTextView);
         nextDistanceTextView = (TextView) findViewById(R.id.nextDistanceTextView);
 
-        int size = geometryArrayList.size();
-//        for (i = 0; i < 1; ) {
+//        int size = geometryArrayList.size();
+////        for (i = 0; i < 1; ) {
+//
+//            Log.d("proper", propertiesArrayList.get(i).getDescription().toString());
+
+        if (geometryArrayList.get(i).getGeometryType().equals("\"Point\"")) {
             Log.d("proper", propertiesArrayList.get(i).getDescription().toString());
 
-            if (geometryArrayList.get(i).getGeometryType().equals("\"Point\"")) {
-                Log.d("proper", propertiesArrayList.get(i).getDescription().toString());
+            if (propertiesArrayList.get(i).getPointType().equals("\"S\"")) {
+                Log.d("S proper", propertiesArrayList.get(i).getDescription().toString());
 
-                if (propertiesArrayList.get(i).getPointType().equals("\"S\"")) {
-                    Log.d("S proper", propertiesArrayList.get(i).getDescription().toString());
+                String lineDesc = propertiesArrayList.get(i + 1).getDescription();
+                lineDesc = lineDesc.substring(1, lineDesc.length() - 1);
+                int index = lineDesc.indexOf(",");
+                String distance = lineDesc.substring(index + 2);
 
-                    String lineDesc = propertiesArrayList.get(i + 1).getDescription();
-                    lineDesc = lineDesc.substring(1, lineDesc.length() - 1);
-                    int index = lineDesc.indexOf(",");
-                    String distance = lineDesc.substring(index + 2);
+                String nextDistDesc = propertiesArrayList.get(i + 3).getDescription();
+                nextDistDesc = nextDistDesc.substring(1, nextDistDesc.length() - 1);
+                int index2 = nextDistDesc.indexOf(",");
+                nextDistance = nextDistDesc.substring(index2 + 2);
 
-                    String nextDistDesc = propertiesArrayList.get(i + 3).getDescription();
-                    nextDistDesc = nextDistDesc.substring(1, nextDistDesc.length() - 1);
-                    int index2 = nextDistDesc.indexOf(",");
-                    nextDistance = nextDistDesc.substring(index2 + 2);
+                distanceTextView.setText(distance);
+                nextDistanceTextView.setText(nextDistance);
 
-                    distanceTextView.setText(distance);
-                    nextDistanceTextView.setText(nextDistance);
+                ImageView directionIcon = (ImageView) findViewById(R.id.directionIcon);
+                ImageView nextDirectionIcon = (ImageView) findViewById(R.id.nextDirectionIcon);
 
-                    ImageView directionIcon = (ImageView) findViewById(R.id.directionIcon);
-                    ImageView nextDirectionIcon = (ImageView) findViewById(R.id.nextDirectionIcon);
+                int direction = propertiesArrayList.get(i).getTurnType();
+                int nextDirection = propertiesArrayList.get(i + 2).getTurnType();
 
-                    int direction = propertiesArrayList.get(i).getTurnType();
-                    int nextDirection = propertiesArrayList.get(i + 2).getTurnType();
-
-                    setDirectionIcon(direction, directionIcon);
-                    setDirectionIcon(nextDirection, nextDirectionIcon);
+                setDirectionIcon(direction, directionIcon);
+                setDirectionIcon(nextDirection, nextDirectionIcon);
 
 //                    if (i < size - 2) {
 //                        String nextDistDesc = propertiesArrayList.get(i + 2).getDescription();
@@ -646,48 +631,48 @@ public class NavigationActivity extends AppCompatActivity implements TMapGpsMana
 //                        nextDistanceTextView.setVisibility(View.INVISIBLE);
 //                    }
 
-                    final String mTextString = "경로 안내를 시작합니다. " + propertiesArrayList.get(i).getDescription().toString() + "하세요.";
+                final String mTextString = "경로 안내를 시작합니다. " + propertiesArrayList.get(i).getDescription().toString() + "하세요.";
 //                    mNaverTTSTask = new NaverTTSTask();
 //                    mNaverTTSTask.execute(mTextString);
 
-                    myTTS = new TextToSpeech(getApplicationContext(), new TextToSpeech.OnInitListener() {
-                        @Override
-                        public void onInit(int i) {
-                            myTTS.setLanguage(Locale.KOREAN);
-                            myTTS.speak(mTextString, TextToSpeech.QUEUE_FLUSH, null);
-                        }
-                    });
+                myTTS = new TextToSpeech(getApplicationContext(), new TextToSpeech.OnInitListener() {
+                    @Override
+                    public void onInit(int i) {
+                        myTTS.setLanguage(Locale.KOREAN);
+                        myTTS.speak(mTextString, TextToSpeech.QUEUE_FLUSH, null);
+                    }
+                });
 
 
-                    i++;
-                    return;
+                i++;
+                return;
 
-                } else if (propertiesArrayList.get(i).getPointType().equals("\"N\"")) {
-                    Toast.makeText(NavigationActivity.this, String.valueOf(i), Toast.LENGTH_SHORT).show();
-                    myTTS = new TextToSpeech(getApplicationContext(), new TextToSpeech.OnInitListener() {
-                        @Override
-                        public void onInit(int i) {
-                            myTTS.setLanguage(Locale.KOREAN);
-                            myTTS.speak(propertiesArrayList.get(i).getDescription(), TextToSpeech.QUEUE_FLUSH, null);
-                        }
-                    });
-                    i++;
-                } else if (propertiesArrayList.get(i).getPointType().equals("\"E\"")) {
-                    Toast.makeText(NavigationActivity.this, String.valueOf(i) + "목적지 도착", Toast.LENGTH_SHORT).show();
-
-                    myTTS = new TextToSpeech(getApplicationContext(), new TextToSpeech.OnInitListener() {
-                        @Override
-                        public void onInit(int i) {
-                            myTTS.setLanguage(Locale.KOREAN);
-                            myTTS.speak("목적지에 도착하였습니다.", TextToSpeech.QUEUE_FLUSH, null);
-
-                        }
-                    });
-
-                    finish();
-//                    break;
-
-                }
+//                } else if (propertiesArrayList.get(i).getPointType().equals("\"N\"")) {
+//                    Toast.makeText(NavigationActivity.this, String.valueOf(i), Toast.LENGTH_SHORT).show();
+//                    myTTS = new TextToSpeech(getApplicationContext(), new TextToSpeech.OnInitListener() {
+//                        @Override
+//                        public void onInit(int i) {
+//                            myTTS.setLanguage(Locale.KOREAN);
+//                            myTTS.speak(propertiesArrayList.get(i).getDescription(), TextToSpeech.QUEUE_FLUSH, null);
+//                        }
+//                    });
+//                    i++;
+//                } else if (propertiesArrayList.get(i).getPointType().equals("\"E\"")) {
+//                    Toast.makeText(NavigationActivity.this, String.valueOf(i) + "목적지 도착", Toast.LENGTH_SHORT).show();
+//
+//                    myTTS = new TextToSpeech(getApplicationContext(), new TextToSpeech.OnInitListener() {
+//                        @Override
+//                        public void onInit(int i) {
+//                            myTTS.setLanguage(Locale.KOREAN);
+//                            myTTS.speak("목적지에 도착하였습니다.", TextToSpeech.QUEUE_FLUSH, null);
+//
+//                        }
+//                    });
+//
+//                    finish();
+////                    break;
+//
+//                }
 
 //            } else if (geometryArrayList.get(i).getGeometryType().equals("\"LineString\"")) {
 //                ImageView directionIcon = (ImageView) findViewById(R.id.directionIcon);
@@ -753,24 +738,27 @@ public class NavigationActivity extends AppCompatActivity implements TMapGpsMana
 //                }
 //
 //            }
-            }
-        }
+//            }
+//        }
 
 //    }
+            }
+        }
+    }
 
-    private void setDirectionIcon(int direction,ImageView iconView) {
-        if(direction == 200){
-            iconView.setImageResource(R.drawable.icon_direction_11);
-        } else if(direction == 12){
+    private void setDirectionIcon(int direction, ImageView iconView) {
+        if (direction == 200) {
+            iconView.setImageResource(R.drawable.icon_direction_12);
+        } else if (direction == 12) {
             iconView.setImageResource(R.drawable.icon_direction_12);
 
-        } else if(direction == 13){
+        } else if (direction == 13) {
             iconView.setImageResource(R.drawable.icon_direction_13);
 
-        } else if(direction == 17){
+        } else if (direction == 17) {
             iconView.setImageResource(R.drawable.icon_direction_17);
 
-        } else if(direction == 201){
+        } else if (direction == 201) {
             iconView.setImageResource(R.drawable.icon_direction_arrived);
 
 
@@ -853,7 +841,7 @@ public class NavigationActivity extends AppCompatActivity implements TMapGpsMana
         call.enqueue(new Callback<Void>() {
             @Override
             public void onResponse(Call<Void> call, Response<Void> response) {
-                Toast.makeText(getApplicationContext(), "startResponse", Toast.LENGTH_SHORT).show();
+//                Toast.makeText(getApplicationContext(), "startResponse", Toast.LENGTH_SHORT).show();
 
                 Log.d("Navigation", "onResponse: succeed" + response.code());
                 if (response.code() == 200) {
@@ -915,7 +903,7 @@ public class NavigationActivity extends AppCompatActivity implements TMapGpsMana
                 strength = 1;
                 strengthBar.animate();
                 strengthBar.setCurrentStateNumber(StateProgressBar.StateNumber.ONE);
-                Toast.makeText(getApplicationContext(), strength + "", Toast.LENGTH_SHORT).show();
+//                Toast.makeText(getApplicationContext(), strength + "", Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -925,7 +913,7 @@ public class NavigationActivity extends AppCompatActivity implements TMapGpsMana
                 strength = 2;
                 strengthBar.animate();
                 strengthBar.setCurrentStateNumber(StateProgressBar.StateNumber.TWO);
-                Toast.makeText(getApplicationContext(), strength + "", Toast.LENGTH_SHORT).show();
+//                Toast.makeText(getApplicationContext(), strength + "", Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -935,7 +923,7 @@ public class NavigationActivity extends AppCompatActivity implements TMapGpsMana
                 strength = 3;
                 strengthBar.animate();
                 strengthBar.setCurrentStateNumber(StateProgressBar.StateNumber.THREE);
-                Toast.makeText(getApplicationContext(), strength + "", Toast.LENGTH_SHORT).show();
+//                Toast.makeText(getApplicationContext(), strength + "", Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -963,10 +951,148 @@ public class NavigationActivity extends AppCompatActivity implements TMapGpsMana
                             stateButtons[j].setTextColor(getResources().getColor(R.color.gray, getTheme()));
                         }
                     }
-                    Toast.makeText(getApplicationContext(), state + "", Toast.LENGTH_SHORT).show();
+//                    Toast.makeText(getApplicationContext(), state + "", Toast.LENGTH_SHORT).show();
                 }
             });
         }
     }
 
+    private void initializeMarkers() {
+        new Timer().scheduleAtFixedRate(new TimerTask() {
+            @Override
+            public void run() {
+
+                final Bitmap mountain_damage = BitmapFactory.decodeResource(getResources(), R.drawable.ic_location_mountain_damage_48dp_iloveimg_resized);
+//        mountain_damage.setWidth(mountain_damage.getWidth() / 10);
+//        mountain_damage.setHeight(mountain_damage.getHeight() / 10);
+
+                final Bitmap road_damage = BitmapFactory.decodeResource(getResources(), R.drawable.ic_location_road_damage_48dp_iloveimg_resized);
+//        road_damage.setWidth(road_damage.getWidth() / 10);
+//        road_damage.setHeight(road_damage.getHeight() / 10);
+
+                final Bitmap water_damage = BitmapFactory.decodeResource(getResources(), R.drawable.ic_location_water_damage_48dp_iloveimg_resized);
+//        water_damage.setWidth(water_damage.getWidth() / 10);
+//        water_damage.setHeight(water_damage.getHeight() / 10);
+
+                OkHttpClient client = new OkHttpClient.Builder()
+                        .connectTimeout(100, TimeUnit.SECONDS)
+                        .readTimeout(100, TimeUnit.SECONDS).build();
+
+                Retrofit builder = new Retrofit.Builder()
+                        .baseUrl(APIUrl.API_BASE_URL).client(client)
+                        .addConverterFactory(GsonConverterFactory.create())
+                        .build();
+                RestAPI restAPI = builder.create(RestAPI.class);
+
+                Call<JsonObject> call = restAPI.getReportList();
+                Log.d(TAG, "run: " + call.request().url());
+                call.enqueue(new Callback<JsonObject>() {
+                    @Override
+                    public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
+                        Log.d(TAG, "onResponse: " + response.code());
+                        Log.d(TAG, "onResponse: " + call.request().url());
+
+                        if (response.code() == 200) {
+                            tMapView.removeAllMarkerItem();
+                            int i = 0;
+                            JsonArray res = response.body().get("showKey").getAsJsonArray();
+                            Iterator<JsonElement> iterator = res.iterator();
+                            while (iterator.hasNext()) {
+                                JsonObject obj = iterator.next().getAsJsonObject();
+                                Log.d(TAG, "onResponse: " + obj.toString());
+                                int type = obj.get("kind").getAsInt();
+                                TMapMarkerItem markerItem = new TMapMarkerItem();
+                                TMapPoint markerPoint = new TMapPoint(obj.get("lat").getAsDouble(), obj.get("lng").getAsDouble());
+                                markerItem.setTMapPoint(markerPoint);
+                                markerItem.setVisible(TMapMarkerItem.VISIBLE);
+                                if (type == 1) markerItem.setIcon(road_damage);
+                                if (type == 2) markerItem.setIcon(water_damage);
+                                if (type == 3) markerItem.setIcon(mountain_damage);
+                                tMapView.addMarkerItem("marker:" + i++, markerItem);
+
+                            }
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<JsonObject> call, Throwable t) {
+                        t.printStackTrace();
+                    }
+                });
+                Log.i("tag", "A Kiss every 5 seconds");
+            }
+        }, 0, 5000);
+
+    }
+
+    private void markerUpdate() {
+//        new Timer().scheduleAtFixedRate(new TimerTask() {
+//            @Override
+//            public void run() {
+//                Log.i("tag", "A Kiss every 5 seconds");
+//            }
+//        }, 0, 5000);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        final Bitmap mountain_damage = BitmapFactory.decodeResource(getResources(), R.drawable.ic_location_mountain_damage_48dp_iloveimg_resized);
+//        mountain_damage.setWidth(mountain_damage.getWidth() / 10);
+//        mountain_damage.setHeight(mountain_damage.getHeight() / 10);
+
+        final Bitmap road_damage = BitmapFactory.decodeResource(getResources(), R.drawable.ic_location_road_damage_48dp_iloveimg_resized);
+//        road_damage.setWidth(road_damage.getWidth() / 10);
+//        road_damage.setHeight(road_damage.getHeight() / 10);
+
+        final Bitmap water_damage = BitmapFactory.decodeResource(getResources(), R.drawable.ic_location_water_damage_48dp_iloveimg_resized);
+//        water_damage.setWidth(water_damage.getWidth() / 10);
+//        water_damage.setHeight(water_damage.getHeight() / 10);
+
+        OkHttpClient client = new OkHttpClient.Builder()
+                .connectTimeout(100, TimeUnit.SECONDS)
+                .readTimeout(100, TimeUnit.SECONDS).build();
+
+        Retrofit builder = new Retrofit.Builder()
+                .baseUrl(APIUrl.API_BASE_URL).client(client)
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+        RestAPI restAPI = builder.create(RestAPI.class);
+
+        Call<JsonObject> call = restAPI.getReportList();
+        Log.d(TAG, "run: " + call.request().url());
+        call.enqueue(new Callback<JsonObject>() {
+            @Override
+            public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
+                Log.d(TAG, "onResponse: " + response.code());
+                Log.d(TAG, "onResponse: " + call.request().url());
+
+                if (response.code() == 200) {
+                    tMapView.removeAllMarkerItem();
+                    int i = 0;
+                    JsonArray res = response.body().get("showKey").getAsJsonArray();
+                    Iterator<JsonElement> iterator = res.iterator();
+                    while (iterator.hasNext()) {
+                        JsonObject obj = iterator.next().getAsJsonObject();
+                        Log.d(TAG, "onResponse: " + obj.toString());
+                        int type = obj.get("kind").getAsInt();
+                        TMapMarkerItem markerItem = new TMapMarkerItem();
+                        TMapPoint markerPoint = new TMapPoint(obj.get("lat").getAsDouble(), obj.get("lng").getAsDouble());
+                        markerItem.setTMapPoint(markerPoint);
+                        markerItem.setVisible(TMapMarkerItem.VISIBLE);
+                        if (type == 1) markerItem.setIcon(road_damage);
+                        if (type == 2) markerItem.setIcon(water_damage);
+                        if (type == 3) markerItem.setIcon(mountain_damage);
+                        tMapView.addMarkerItem("marker:" + i++, markerItem);
+
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Call<JsonObject> call, Throwable t) {
+                t.printStackTrace();
+            }
+        });
+    }
 }

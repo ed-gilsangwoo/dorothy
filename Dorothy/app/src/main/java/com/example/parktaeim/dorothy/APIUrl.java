@@ -16,4 +16,5 @@ public class APIUrl {
     public static final String NAVIGATION_URL = "tmap/routes";
 
     public static final String REPORT = "report";
+    public static final String GETREPORTLIST = "list/all";
 }

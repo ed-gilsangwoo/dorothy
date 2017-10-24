@@ -39,4 +39,7 @@ public interface RestAPI {
     @POST(APIUrl.REPORT)
     Call<Void> report(@FieldMap HashMap<String, Object> fieldMap);
 
+    @GET(APIUrl.GETREPORTLIST)
+    Call<JsonObject> getReportList();
+
 }
