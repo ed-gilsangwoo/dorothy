@@ -109,7 +109,7 @@ public class NavigationActivity extends AppCompatActivity implements TMapGpsMana
     ArrayList<DestinationResponseItem> geometryArrayList;
     ArrayList<DestinationResponseItem> propertiesArrayList;
 
-    
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -251,7 +251,7 @@ public class NavigationActivity extends AppCompatActivity implements TMapGpsMana
 
         }
 
-        if(startLayout.getVisibility() == View.VISIBLE){
+        if (startLayout.getVisibility() == View.VISIBLE) {
             setNavigation();
         }
     }
@@ -560,7 +560,7 @@ public class NavigationActivity extends AppCompatActivity implements TMapGpsMana
 
                 beforeStartLayout.setVisibility(View.GONE);
                 startLayout.setVisibility(View.VISIBLE);
-                Log.d("beforeLayout Gone=====","startLayout Visible===-=====");
+                Log.d("beforeLayout Gone=====", "startLayout Visible===-=====");
 
 //                tMapView.removeTMapPath();
                 tMapView.setZoomLevel(18);
@@ -572,7 +572,6 @@ public class NavigationActivity extends AppCompatActivity implements TMapGpsMana
         });
 
 
-
         // Setting Text
         Intent intent = getIntent();
         destNameTextView.setText(intent.getStringExtra("destination"));
@@ -582,7 +581,7 @@ public class NavigationActivity extends AppCompatActivity implements TMapGpsMana
 
     }
 
-    private void haha(){
+    private void haha() {
 //        if(startLayout.getVisibility() == View.VISIBLE){
 //            setNavigation();
 //        }
@@ -646,7 +645,7 @@ public class NavigationActivity extends AppCompatActivity implements TMapGpsMana
                     nextDistDesc = nextDistDesc.substring(1, nextDistDesc.length() - 1);
                     int index2 = nextDistDesc.indexOf(",");
                     nextDistance = nextDistDesc.substring(index2 + 2);
-                }else{
+                } else {
                     distanceTextView.setText(nextDistance);
                     nextDistanceTextView.setVisibility(View.INVISIBLE);
                 }
@@ -908,21 +907,22 @@ public class NavigationActivity extends AppCompatActivity implements TMapGpsMana
                         .readTimeout(100, TimeUnit.SECONDS).build();
 
                 Retrofit builder = new Retrofit.Builder()
-                        .baseUrl(APIUrl.TMAP_BASE_URL).client(client)
+                        .baseUrl(APIUrl.API_BASE_URL).client(client)
                         .addConverterFactory(GsonConverterFactory.create())
                         .build();
                 RestAPI restAPI = builder.create(RestAPI.class);
 
-                Call<JsonArray> call = restAPI.getReportList();
-
-                call.enqueue(new Callback<JsonArray>() {
+                Call<JsonObject> call = restAPI.getReportList();
+                Log.d(TAG, "run: " + call.request().url());
+                call.enqueue(new Callback<JsonObject>() {
                     @Override
-                    public void onResponse(Call<JsonArray> call, Response<JsonArray> response) {
+                    public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
                         Log.d(TAG, "onResponse: " + response.code());
-                        
+                        Log.d(TAG, "onResponse: " + call.request().url());
                         if (response.code() == 200) {
                             tMapView.removeAllMarkerItem();
-                            JsonArray res = response.body();
+
+                            JsonArray res = response.body().get("showKey").getAsJsonArray();
                             Iterator<JsonElement> iterator = res.iterator();
                             while (iterator.hasNext()) {
                                 JsonObject obj = iterator.next().getAsJsonObject();
@@ -941,8 +941,8 @@ public class NavigationActivity extends AppCompatActivity implements TMapGpsMana
                     }
 
                     @Override
-                    public void onFailure(Call<JsonArray> call, Throwable t) {
-
+                    public void onFailure(Call<JsonObject> call, Throwable t) {
+                        t.printStackTrace();
                     }
                 });
                 Log.i("tag", "A Kiss every 5 seconds");

@@ -40,6 +40,6 @@ public interface RestAPI {
     Call<Void> report(@FieldMap HashMap<String, Object> fieldMap);
 
     @GET(APIUrl.GETREPORTLIST)
-    Call<JsonArray> getReportList();
+    Call<JsonObject> getReportList();
 
 }
