@@ -1,7 +1,7 @@
 # Dorothy                   
 실시간 도로파손 신고 내비게이션    
 
-제4회 글로벌sw융합해카톤 지정과제2 대상 / KISA 미래인재상
+제4회 글로벌sw융합해카톤 지정과제2 행정안전부 장관 / KISA 미래인재상
 
 [👉🏻 시연영상 보러가기 👈🏻](https://drive.google.com/file/d/1CDOzCZcTfK1GR6SEwoiOXQ99hI7RLTXg/view?usp=sharing)
 
